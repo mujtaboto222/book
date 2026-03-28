@@ -223,18 +223,15 @@ let supabase, currentUserId = null, paypalRendered = false;
 window.addEventListener('load', async () => {
   supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Handle password reset redirect via Supabase auth state
-  const { data: { session } } = await supabase.auth.getSession();
-  
-  // Listen for auth state changes (catches password recovery event)
+  // Listen for password recovery event (fires when user clicks reset link)
   supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'PASSWORD_RECOVERY') {
       showTab('newpass');
     }
   });
 
-  const { data: { session: currentSession } } = await supabase.auth.getSession();
-  const session = currentSession;
+  // Check if already logged in
+  const { data: { session } } = await supabase.auth.getSession();
   if (session) {
     const { data: profile } = await supabase.from('profiles').select('approved').eq('id', session.user.id).single();
     if (profile?.approved) {
