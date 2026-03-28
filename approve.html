@@ -33,7 +33,7 @@ body::before {
   position: relative; z-index: 1;
   background: rgba(26,37,80,0.7); backdrop-filter: blur(20px);
   border: 1px solid var(--border); border-radius: 20px;
-  padding: 3rem 2.5rem; width: 100%; max-width: 420px; margin: 1rem;
+  padding: 3rem 2.5rem; width: 100%; max-width: 440px; margin: 1rem;
   box-shadow: 0 40px 80px rgba(0,0,0,0.4);
 }
 .card::before {
@@ -41,37 +41,51 @@ body::before {
   background: linear-gradient(90deg, transparent, var(--cyan), transparent);
   border-radius: 20px 20px 0 0;
 }
-.logo { text-align: center; margin-bottom: 2rem; }
+
+.logo { text-align: center; margin-bottom: 1.5rem; }
 .logo-tag { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--cyan); letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 0.6rem; display: block; }
-.logo h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; line-height: 1.2; margin-bottom: 0.3rem; }
+.logo h1 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 900; line-height: 1.2; margin-bottom: 0.3rem; }
 .logo h1 em { font-style: normal; color: var(--cyan); }
-.logo p { font-size: 0.78rem; color: var(--muted); }
+.logo p { font-size: 0.75rem; color: var(--muted); }
 
 .welcome {
-  text-align: center; margin-bottom: 1.8rem; padding: 1rem;
+  text-align: center; margin-bottom: 1.5rem; padding: 0.9rem 1rem;
   background: rgba(0,224,160,0.06); border: 1px solid rgba(0,224,160,0.2);
   border-radius: 10px;
 }
-.welcome .icon { font-size: 2rem; margin-bottom: 0.5rem; }
-.welcome h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 0.3rem; color: var(--green); }
-.welcome p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+.welcome .icon { font-size: 1.8rem; margin-bottom: 0.4rem; }
+.welcome h3 { font-family: 'Playfair Display', serif; font-size: 1rem; margin-bottom: 0.3rem; color: var(--green); }
+.welcome p { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
 
-.form-group { margin-bottom: 1.2rem; }
-label { display: block; font-size: 0.78rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.5rem; font-weight: 500; }
-input[type="email"] {
+.notice {
+  background: rgba(232,201,122,0.08); border: 1px solid rgba(232,201,122,0.25);
+  border-radius: 8px; padding: 0.7rem 1rem; margin-bottom: 1.3rem;
+  font-size: 0.78rem; color: var(--gold); line-height: 1.6;
+  display: flex; gap: 0.5rem; align-items: flex-start;
+}
+.notice-icon { flex-shrink: 0; font-size: 0.9rem; margin-top: 1px; }
+
+.form-group { margin-bottom: 1rem; }
+label {
+  display: block; font-size: 0.75rem; color: var(--muted);
+  letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.45rem; font-weight: 500;
+}
+.label-note { font-size: 0.68rem; color: rgba(138,155,196,0.6); text-transform: none; letter-spacing: 0; margin-left: 0.3rem; font-weight: 400; }
+
+input[type="text"], input[type="email"], input[type="password"] {
   width: 100%; background: rgba(15,21,53,0.7); border: 1px solid var(--border);
-  border-radius: 8px; padding: 0.75rem 1rem; color: var(--white); font-size: 0.9rem;
+  border-radius: 8px; padding: 0.72rem 1rem; color: var(--white); font-size: 0.88rem;
   font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s;
 }
 input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(0,194,224,0.1); }
-input::placeholder { color: rgba(138,155,196,0.5); }
+input::placeholder { color: rgba(138,155,196,0.45); }
 
 .btn {
   width: 100%; background: var(--cyan); color: var(--navy); border: none;
   border-radius: 8px; padding: 0.85rem; font-size: 0.9rem; font-weight: 700;
   font-family: 'DM Sans', sans-serif; letter-spacing: 0.05em; text-transform: uppercase;
   cursor: pointer; transition: all 0.25s; box-shadow: 0 0 20px rgba(0,194,224,0.3);
-  margin-top: 0.4rem; display: block; text-decoration: none; text-align: center;
+  margin-top: 0.5rem; display: block; text-decoration: none; text-align: center;
 }
 .btn:hover { transform: translateY(-1px); box-shadow: 0 0 35px rgba(0,194,224,0.5); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
@@ -80,17 +94,14 @@ input::placeholder { color: rgba(138,155,196,0.5); }
 .msg.error { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3); color: var(--error); display: block; }
 .msg.success { background: rgba(0,224,160,0.08); border: 1px solid rgba(0,224,160,0.25); color: var(--green); display: block; }
 
-#screen-activate { display: block; }
-#screen-not-found { display: none; text-align: center; padding: 1rem 0; }
-#screen-not-found .icon { font-size: 2.5rem; margin-bottom: 1rem; }
-#screen-not-found h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.5rem; }
-#screen-not-found p { font-size: 0.85rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+#screen-form { display: block; }
+
 #screen-success { display: none; text-align: center; padding: 1rem 0; }
 #screen-success .icon { font-size: 3.5rem; margin-bottom: 1rem; }
 #screen-success h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 0.5rem; }
 #screen-success p { font-size: 0.85rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
 
-.footer-note { text-align: center; margin-top: 1.5rem; font-size: 0.72rem; color: rgba(138,155,196,0.5); }
+.footer-note { text-align: center; margin-top: 1.5rem; font-size: 0.7rem; color: rgba(138,155,196,0.45); }
 </style>
 </head>
 <body>
@@ -99,39 +110,50 @@ input::placeholder { color: rgba(138,155,196,0.5); }
 
 <div class="card">
   <div class="logo">
-    <span class="logo-tag">✅ Access Activation</span>
+    <span class="logo-tag">🎓 Purchase Confirmed</span>
     <h1>F(Orth) Part B<br><em>Easy Study Notes</em></h1>
     <p>Before the Exam · Volume 1 · Ortho Times</p>
   </div>
 
-  <!-- ACTIVATE FORM -->
-  <div id="screen-activate">
+  <!-- SIGNUP + ACTIVATE FORM -->
+  <div id="screen-form">
     <div class="welcome">
       <div class="icon">🎉</div>
-      <h3>Purchase Confirmed!</h3>
-      <p>Enter the email address you used when requesting access. Your account will be activated instantly.</p>
+      <h3>Welcome! Let's set up your account.</h3>
+      <p>Complete the form below to activate your access instantly.</p>
+    </div>
+
+    <div class="notice">
+      <span class="notice-icon">📧</span>
+      <span>Please use the <strong>same email address you used to purchase</strong> access. This is how we verify your purchase.</span>
+    </div>
+
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="reg-name" placeholder="Dr. Your Name">
     </div>
     <div class="form-group">
-      <label>Your Email Address</label>
-      <input type="email" id="activate-email" placeholder="your@email.com" autocomplete="email">
+      <label>Email Address <span class="label-note">— must match your purchase email</span></label>
+      <input type="email" id="reg-email" placeholder="your@email.com" autocomplete="email">
     </div>
+    <div class="form-group">
+      <label>Create Password</label>
+      <input type="password" id="reg-password" placeholder="Min. 8 characters">
+    </div>
+    <div class="form-group">
+      <label>Confirm Password</label>
+      <input type="password" id="reg-password2" placeholder="Repeat password">
+    </div>
+
     <button class="btn" id="activate-btn" onclick="doActivate()">Activate My Access →</button>
     <div class="msg" id="activate-msg"></div>
-  </div>
-
-  <!-- NOT REGISTERED -->
-  <div id="screen-not-found">
-    <div class="icon">📝</div>
-    <h3>Email Not Found</h3>
-    <p>We couldn't find a request for that email. Please make sure you've requested access on the sign in page first, then come back here to activate.</p>
-    <a href="index.html" class="btn">Request Access First →</a>
   </div>
 
   <!-- SUCCESS -->
   <div id="screen-success">
     <div class="icon">🎓</div>
-    <h3>Access Activated!</h3>
-    <p>Your account is now active. Click below to sign in and start studying.</p>
+    <h3>You're all set!</h3>
+    <p>Your account has been created and activated. Click below to sign in and start studying.</p>
     <a href="index.html" class="btn">Sign In Now →</a>
   </div>
 
@@ -145,14 +167,8 @@ let supabase;
 
 window.addEventListener('load', () => {
   supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  document.getElementById('activate-email').focus();
+  document.getElementById('reg-name').focus();
 });
-
-function show(screenId) {
-  ['screen-activate','screen-not-found','screen-success'].forEach(id => {
-    document.getElementById(id).style.display = id === screenId ? 'block' : 'none';
-  });
-}
 
 function showMsg(text, type) {
   const el = document.getElementById('activate-msg');
@@ -160,50 +176,66 @@ function showMsg(text, type) {
 }
 
 async function doActivate() {
-  const email = document.getElementById('activate-email').value.trim().toLowerCase();
-  if (!email) return showMsg('Please enter your email address.', 'error');
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const password = document.getElementById('reg-password').value;
+  const password2 = document.getElementById('reg-password2').value;
+
+  if (!name || !email || !password || !password2) return showMsg('Please fill in all fields.', 'error');
+  if (password.length < 8) return showMsg('Password must be at least 8 characters.', 'error');
+  if (password !== password2) return showMsg('Passwords do not match.', 'error');
 
   const btn = document.getElementById('activate-btn');
   btn.disabled = true; btn.textContent = 'Activating…';
 
-  // Look up the profile by email
-  const { data: profile, error } = await supabase
+  // Check if email already has an account
+  const { data: existing } = await supabase
     .from('profiles')
-    .select('id, approved, email')
+    .select('id, approved')
     .eq('email', email)
     .single();
 
-  if (error || !profile) {
-    // Email not found — not registered yet
-    btn.disabled = false; btn.textContent = 'Activate My Access →';
-    show('screen-not-found');
+  if (existing) {
+    if (existing.approved) {
+      showMsg('This email already has active access. Go to the sign in page.', 'success');
+      btn.disabled = false; btn.textContent = 'Activate My Access →';
+      setTimeout(() => window.location.href = 'index.html', 2000);
+      return;
+    }
+    // Exists but not approved — just approve them
+    await supabase.from('profiles').update({ approved: true, full_name: name }).eq('id', existing.id);
+    // Update password too
+    await supabase.auth.signInWithPassword({ email, password }).catch(() => {});
+    document.getElementById('screen-form').style.display = 'none';
+    document.getElementById('screen-success').style.display = 'block';
     return;
   }
 
-  if (profile.approved) {
-    // Already approved
-    showMsg('✓ Your account is already active! Go to the sign in page.', 'success');
-    btn.disabled = false; btn.textContent = 'Activate My Access →';
-    setTimeout(() => window.location.href = 'index.html', 2000);
-    return;
-  }
+  // New user — sign up and approve instantly
+  const { data, error } = await supabase.auth.signUp({
+    email, password,
+    options: { data: { full_name: name } }
+  });
 
-  // Approve the account
-  const { error: updateError } = await supabase
-    .from('profiles')
-    .update({ approved: true })
-    .eq('id', profile.id);
-
-  if (updateError) {
-    showMsg('Something went wrong. Please try again.', 'error');
+  if (error) {
+    showMsg(error.message, 'error');
     btn.disabled = false; btn.textContent = 'Activate My Access →';
     return;
   }
 
-  // Also confirm their email in auth
-  await supabase.auth.updateUser({ email: email }).catch(() => {});
+  if (data?.user) {
+    // Insert profile as approved immediately
+    await supabase.from('profiles').upsert({
+      id: data.user.id,
+      full_name: name,
+      email: email,
+      approved: true,
+      is_admin: false
+    });
+  }
 
-  show('screen-success');
+  document.getElementById('screen-form').style.display = 'none';
+  document.getElementById('screen-success').style.display = 'block';
 }
 
 document.addEventListener('keydown', e => {
