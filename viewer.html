@@ -201,7 +201,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 let pdfDoc = null, currentPage = 1, totalPages = 0, scale = 1.5, rendering = false, renderQueue = null;
 
 async function loadPDF() {
-  const loadingTask = pdfjsLib.getDocument('book.pdf');
+  const loadingTask = pdfjsLib.getDocument({url: 'https://drive.google.com/uc?export=download&id=1b1Qb-p_y8O3SS2nUytALaLm6Yyzn3jRQ', withCredentials: false});
   loadingTask.onProgress = p => {
     if (p.total) document.querySelector('.load-text').textContent = `Loading… ${Math.round(p.loaded/p.total*100)}%`;
   };
