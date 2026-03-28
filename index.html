@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>F(Orth) Part B — Sign In</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -252,13 +252,16 @@ input::placeholder { color: rgba(138,155,196,0.5); }
 </div>
 
 <script>
-// ── SUPABASE CONFIG — replace with your keys ──
 const SUPABASE_URL = 'https://djbiatgxjmvwfcimofjt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqYmlhdGd4am12d2ZjaW1vZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NjU1MjcsImV4cCI6MjA5MDI0MTUyN30.m_gBey_jA13hVdjttSKtFMcrQO-dGokq1Fpu2XriLp0';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let supabase;
 
-// ── Check if already logged in ──
-(async () => {
+window.addEventListener('load', () => {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  initApp();
+});
+
+async function initApp() {
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
     // Check if approved
@@ -272,7 +275,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       window.location.href = 'viewer.html';
     }
   }
-})();
+}
 
 function showTab(tab) {
   document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
