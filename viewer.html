@@ -201,15 +201,20 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 let pdfDoc = null, currentPage = 1, totalPages = 0, scale = 1.5, rendering = false, renderQueue = null;
 
 async function loadPDF() {
-  const loadingTask = pdfjsLib.getDocument('book.pdf');
-  loadingTask.onProgress = p => {
-    if (p.total) document.querySelector('.load-text').textContent = `Loading… ${Math.round(p.loaded/p.total*100)}%`;
-  };
-  pdfDoc = await loadingTask.promise;
-  totalPages = pdfDoc.numPages;
-  document.getElementById('page-total').textContent = '/ ' + totalPages;
-  document.getElementById('loading').style.display = 'none';
-  renderPage(1);
+  try {
+    document.querySelector('.load-text').textContent = 'Fetching…';
+    const response = await fetch('book.pdf');
+    const arrayBuffer = await response.arrayBuffer();
+    document.querySelector('.load-text').textContent = 'Rendering…';
+    const loadingTask = pdfjsLib.getDocument({data: arrayBuffer});
+    pdfDoc = await loadingTask.promise;
+    totalPages = pdfDoc.numPages;
+    document.getElementById('page-total').textContent = '/ ' + totalPages;
+    document.getElementById('loading').style.display = 'none';
+    renderPage(1);
+  } catch(e) {
+    document.querySelector('.load-text').textContent = 'Error: ' + e.message;
+  }
 }
 
 async function renderPage(num) {
