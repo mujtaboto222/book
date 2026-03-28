@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>F(Orth) Part B — Study Notes Viewer</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
 :root {
   --navy: #0f1535;
@@ -261,7 +262,17 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goPrev();
 });
 
-function logout() { localStorage.removeItem('vaultdocs_session'); window.location.href = 'index.html'; }
+async function logout() {
+  localStorage.removeItem('vaultdocs_session');
+  try {
+    const sb = window.supabase.createClient(
+      'https://djbiatgxjmvwfcimofjt.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqYmlhdGd4am12d2ZjaW1vZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NjU1MjcsImV4cCI6MjA5MDI0MTUyN30.m_gBey_jA13hVdjttSKtFMcrQO-dGokq1Fpu2XriLp0'
+    );
+    await sb.auth.signOut();
+  } catch(e) {}
+  window.location.href = 'index.html';
+}
 
 if (!localStorage.getItem('vaultdocs_session')) {
   window.location.href = 'index.html';
