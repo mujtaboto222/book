@@ -242,7 +242,7 @@ async function doSignup() {
   const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
   if (error) { showMsg('signup-msg', error.message, 'error'); btn.disabled = false; btn.textContent = 'Request Access →'; return; }
   if (data?.user) {
-    await supabase.from('profiles').upsert({ id: data.user.id, full_name: name, email, approved: false });
+    await supabase.from('profiles').upsert({ id: data.user.id, full_name: name, email, approved: false, is_admin: false }, { onConflict: 'id', ignoreDuplicates: false });
   }
   document.getElementById('signup-btn').style.display = 'none';
   document.getElementById('pending-notice').style.display = 'block';
