@@ -194,6 +194,24 @@ input::placeholder { color: rgba(138,155,196,0.5); }
     </div>
   </div>
 
+  <!-- NEW PASSWORD (shown after clicking reset link) -->
+  <div id="form-newpass" style="display:none">
+    <div style="text-align:center; margin-bottom:1.5rem;">
+      <div style="font-size:2rem; margin-bottom:0.5rem;">🔑</div>
+      <h3 style="font-family:'Playfair Display',serif; font-size:1.1rem;">Set New Password</h3>
+    </div>
+    <div class="form-group">
+      <label>New Password</label>
+      <input type="password" id="newpass-1" placeholder="Min. 8 characters">
+    </div>
+    <div class="form-group">
+      <label>Confirm Password</label>
+      <input type="password" id="newpass-2" placeholder="Repeat password">
+    </div>
+    <button class="btn" id="newpass-btn" onclick="doSetNewPassword()">Save New Password →</button>
+    <div class="msg" id="newpass-msg"></div>
+  </div>
+
   <div class="footer-note">M.B. Mekki · Ortho Times · Independent Study Resource</div>
 </div>
 
@@ -205,14 +223,18 @@ let supabase, currentUserId = null, paypalRendered = false;
 window.addEventListener('load', async () => {
   supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Handle password reset redirect
-  const hash = window.location.hash;
-  if (hash.includes('type=recovery')) {
-    showTab('reset');
-    return;
-  }
-
+  // Handle password reset redirect via Supabase auth state
   const { data: { session } } = await supabase.auth.getSession();
+  
+  // Listen for auth state changes (catches password recovery event)
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      showTab('newpass');
+    }
+  });
+
+  const { data: { session: currentSession } } = await supabase.auth.getSession();
+  const session = currentSession;
   if (session) {
     const { data: profile } = await supabase.from('profiles').select('approved').eq('id', session.user.id).single();
     if (profile?.approved) {
@@ -223,11 +245,14 @@ window.addEventListener('load', async () => {
 });
 
 function showTab(tab) {
-  ['login','signup','forgot'].forEach(t => {
-    document.getElementById('form-' + t).style.display = t === tab ? 'block' : 'none';
+  ['login','signup','forgot','newpass'].forEach(t => {
+    const el = document.getElementById('form-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
     const tabEl = document.getElementById('tab-' + t);
     if (tabEl) tabEl.classList.toggle('active', t === tab);
   });
+  // Hide tabs bar when showing new password form
+  document.querySelector('.tabs').style.display = tab === 'newpass' ? 'none' : 'flex';
 }
 
 function showMsg(id, text, type) {
@@ -315,6 +340,24 @@ async function doForgot() {
   }
   document.getElementById('forgot-step-1').style.display = 'none';
   document.getElementById('forgot-step-2').style.display = 'block';
+}
+
+async function doSetNewPassword() {
+  const p1 = document.getElementById('newpass-1').value;
+  const p2 = document.getElementById('newpass-2').value;
+  if (!p1 || !p2) return showMsg('newpass-msg', 'Please fill in both fields.', 'error');
+  if (p1.length < 8) return showMsg('newpass-msg', 'Password must be at least 8 characters.', 'error');
+  if (p1 !== p2) return showMsg('newpass-msg', 'Passwords do not match.', 'error');
+  const btn = document.getElementById('newpass-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const { error } = await supabase.auth.updateUser({ password: p1 });
+  if (error) {
+    showMsg('newpass-msg', error.message, 'error');
+    btn.disabled = false; btn.textContent = 'Save New Password →';
+    return;
+  }
+  showMsg('newpass-msg', '✓ Password updated! Signing you in…', 'success');
+  setTimeout(() => { showTab('login'); }, 2000);
 }
 
 document.addEventListener('keydown', e => {
