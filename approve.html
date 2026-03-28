@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activate Access — F(Orth) Part B</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0f1535; --navy-mid: #1a2550;
+  --cyan: #00c2e0; --gold: #e8c97a;
+  --white: #f5f7ff; --muted: #8a9bc4;
+  --border: rgba(0,194,224,0.2); --error: #ff6b6b;
+  --green: #00e0a0;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--navy); color: var(--white);
+  font-family: 'DM Sans', sans-serif; min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: linear-gradient(rgba(0,194,224,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,194,224,0.04) 1px, transparent 1px);
+  background-size: 60px 60px; pointer-events: none;
+}
+.orb { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; }
+.orb-1 { width: 500px; height: 500px; background: rgba(0,194,224,0.08); top: -150px; right: -100px; }
+.orb-2 { width: 400px; height: 400px; background: rgba(36,48,112,0.6); bottom: -100px; left: -100px; }
+
+.card {
+  position: relative; z-index: 1;
+  background: rgba(26,37,80,0.7); backdrop-filter: blur(20px);
+  border: 1px solid var(--border); border-radius: 20px;
+  padding: 3rem 2.5rem; width: 100%; max-width: 420px; margin: 1rem;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.4);
+}
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  border-radius: 20px 20px 0 0;
+}
+.logo { text-align: center; margin-bottom: 2rem; }
+.logo-tag { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--cyan); letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 0.6rem; display: block; }
+.logo h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; line-height: 1.2; margin-bottom: 0.3rem; }
+.logo h1 em { font-style: normal; color: var(--cyan); }
+.logo p { font-size: 0.78rem; color: var(--muted); }
+
+.welcome {
+  text-align: center; margin-bottom: 1.8rem; padding: 1rem;
+  background: rgba(0,224,160,0.06); border: 1px solid rgba(0,224,160,0.2);
+  border-radius: 10px;
+}
+.welcome .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.welcome h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 0.3rem; color: var(--green); }
+.welcome p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+
+.form-group { margin-bottom: 1.2rem; }
+label { display: block; font-size: 0.78rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.5rem; font-weight: 500; }
+input[type="email"] {
+  width: 100%; background: rgba(15,21,53,0.7); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.75rem 1rem; color: var(--white); font-size: 0.9rem;
+  font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s;
+}
+input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(0,194,224,0.1); }
+input::placeholder { color: rgba(138,155,196,0.5); }
+
+.btn {
+  width: 100%; background: var(--cyan); color: var(--navy); border: none;
+  border-radius: 8px; padding: 0.85rem; font-size: 0.9rem; font-weight: 700;
+  font-family: 'DM Sans', sans-serif; letter-spacing: 0.05em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.25s; box-shadow: 0 0 20px rgba(0,194,224,0.3);
+  margin-top: 0.4rem; display: block; text-decoration: none; text-align: center;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 0 35px rgba(0,194,224,0.5); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.msg { font-size: 0.82rem; padding: 0.7rem 1rem; border-radius: 6px; margin-top: 1rem; text-align: center; display: none; }
+.msg.error { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3); color: var(--error); display: block; }
+.msg.success { background: rgba(0,224,160,0.08); border: 1px solid rgba(0,224,160,0.25); color: var(--green); display: block; }
+
+#screen-activate { display: block; }
+#screen-not-found { display: none; text-align: center; padding: 1rem 0; }
+#screen-not-found .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+#screen-not-found h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.5rem; }
+#screen-not-found p { font-size: 0.85rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+#screen-success { display: none; text-align: center; padding: 1rem 0; }
+#screen-success .icon { font-size: 3.5rem; margin-bottom: 1rem; }
+#screen-success h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 0.5rem; }
+#screen-success p { font-size: 0.85rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+
+.footer-note { text-align: center; margin-top: 1.5rem; font-size: 0.72rem; color: rgba(138,155,196,0.5); }
+</style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="card">
+  <div class="logo">
+    <span class="logo-tag">✅ Access Activation</span>
+    <h1>F(Orth) Part B<br><em>Easy Study Notes</em></h1>
+    <p>Before the Exam · Volume 1 · Ortho Times</p>
+  </div>
+
+  <!-- ACTIVATE FORM -->
+  <div id="screen-activate">
+    <div class="welcome">
+      <div class="icon">🎉</div>
+      <h3>Purchase Confirmed!</h3>
+      <p>Enter the email address you used when requesting access. Your account will be activated instantly.</p>
+    </div>
+    <div class="form-group">
+      <label>Your Email Address</label>
+      <input type="email" id="activate-email" placeholder="your@email.com" autocomplete="email">
+    </div>
+    <button class="btn" id="activate-btn" onclick="doActivate()">Activate My Access →</button>
+    <div class="msg" id="activate-msg"></div>
+  </div>
+
+  <!-- NOT REGISTERED -->
+  <div id="screen-not-found">
+    <div class="icon">📝</div>
+    <h3>Email Not Found</h3>
+    <p>We couldn't find a request for that email. Please make sure you've requested access on the sign in page first, then come back here to activate.</p>
+    <a href="index.html" class="btn">Request Access First →</a>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="screen-success">
+    <div class="icon">🎓</div>
+    <h3>Access Activated!</h3>
+    <p>Your account is now active. Click below to sign in and start studying.</p>
+    <a href="index.html" class="btn">Sign In Now →</a>
+  </div>
+
+  <div class="footer-note">M.B. Mekki · Ortho Times · Independent Study Resource</div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://djbiatgxjmvwfcimofjt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqYmlhdGd4am12d2ZjaW1vZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NjU1MjcsImV4cCI6MjA5MDI0MTUyN30.m_gBey_jA13hVdjttSKtFMcrQO-dGokq1Fpu2XriLp0';
+let supabase;
+
+window.addEventListener('load', () => {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  document.getElementById('activate-email').focus();
+});
+
+function show(screenId) {
+  ['screen-activate','screen-not-found','screen-success'].forEach(id => {
+    document.getElementById(id).style.display = id === screenId ? 'block' : 'none';
+  });
+}
+
+function showMsg(text, type) {
+  const el = document.getElementById('activate-msg');
+  el.textContent = text; el.className = 'msg ' + type;
+}
+
+async function doActivate() {
+  const email = document.getElementById('activate-email').value.trim().toLowerCase();
+  if (!email) return showMsg('Please enter your email address.', 'error');
+
+  const btn = document.getElementById('activate-btn');
+  btn.disabled = true; btn.textContent = 'Activating…';
+
+  // Look up the profile by email
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('id, approved, email')
+    .eq('email', email)
+    .single();
+
+  if (error || !profile) {
+    // Email not found — not registered yet
+    btn.disabled = false; btn.textContent = 'Activate My Access →';
+    show('screen-not-found');
+    return;
+  }
+
+  if (profile.approved) {
+    // Already approved
+    showMsg('✓ Your account is already active! Go to the sign in page.', 'success');
+    btn.disabled = false; btn.textContent = 'Activate My Access →';
+    setTimeout(() => window.location.href = 'index.html', 2000);
+    return;
+  }
+
+  // Approve the account
+  const { error: updateError } = await supabase
+    .from('profiles')
+    .update({ approved: true })
+    .eq('id', profile.id);
+
+  if (updateError) {
+    showMsg('Something went wrong. Please try again.', 'error');
+    btn.disabled = false; btn.textContent = 'Activate My Access →';
+    return;
+  }
+
+  // Also confirm their email in auth
+  await supabase.auth.updateUser({ email: email }).catch(() => {});
+
+  show('screen-success');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doActivate();
+});
+</script>
+</body>
+</html>
