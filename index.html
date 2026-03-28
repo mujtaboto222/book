@@ -306,7 +306,7 @@ async function doForgot() {
   const btn = document.getElementById('forgot-btn');
   btn.disabled = true; btn.textContent = 'Sending…';
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.href
+    redirectTo: 'https://mujtaboto222.github.io/book/index.html'
   });
   if (error) {
     showMsg('forgot-msg', error.message, 'error');
