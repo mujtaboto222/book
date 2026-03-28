@@ -11,13 +11,16 @@
   --navy: #0f1535; --navy-mid: #1a2550;
   --cyan: #00c2e0; --white: #f5f7ff;
   --muted: #8a9bc4; --border: rgba(0,194,224,0.2);
-  --green: #00e0a0;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
 body {
   background: var(--navy); color: var(--white);
   font-family: 'Segoe UI', system-ui, sans-serif;
   user-select: none; -webkit-user-select: none; -moz-user-select: none;
+  overflow-x: hidden;
 }
 body::before {
   content: ''; position: fixed; inset: 0;
@@ -29,73 +32,80 @@ body::before {
 .topbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0.65rem 1.5rem;
+  padding: 0.6rem 1.5rem;
   background: rgba(15,21,53,0.97); backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border); height: 48px;
 }
-.topbar-brand { font-size: 0.75rem; font-weight: 700; color: var(--cyan); letter-spacing: 0.1em; text-transform: uppercase; }
-.topbar-right { display: flex; align-items: center; gap: 1rem; }
-.page-info { font-size: 0.78rem; color: var(--muted); }
+.topbar-brand { font-size: 0.72rem; font-weight: 700; color: var(--cyan); letter-spacing: 0.1em; text-transform: uppercase; }
+.topbar-right { display: flex; align-items: center; gap: 0.8rem; }
+.page-info { font-size: 0.75rem; color: var(--muted); }
 .icon-btn {
   background: transparent; border: 1px solid var(--border);
-  color: var(--muted); font-size: 0.82rem; padding: 0.35rem 0.8rem;
+  color: var(--muted); font-size: 0.75rem; padding: 0.3rem 0.75rem;
   border-radius: 4px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
 }
 .icon-btn:hover { border-color: var(--cyan); color: var(--cyan); }
-.icon-btn.active { background: rgba(0,194,224,0.15); border-color: var(--cyan); color: var(--cyan); }
 
 /* TOOLBAR */
 .toolbar {
   position: fixed; top: 48px; left: 0; right: 0; z-index: 99;
   display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-  padding: 0.5rem 1rem; flex-wrap: wrap;
+  padding: 0.45rem 1rem; flex-wrap: nowrap; overflow-x: auto;
   background: rgba(26,37,80,0.97); backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border); height: 44px;
 }
 .tb-btn {
   background: rgba(0,194,224,0.08); border: 1px solid var(--border);
-  color: var(--white); font-size: 0.78rem; padding: 0.35rem 0.8rem;
-  border-radius: 5px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  color: var(--white); font-size: 0.75rem; padding: 0.3rem 0.75rem;
+  border-radius: 5px; cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
 }
 .tb-btn:hover { background: rgba(0,194,224,0.18); border-color: var(--cyan); }
 .tb-btn.active { background: rgba(0,194,224,0.2); border-color: var(--cyan); color: var(--cyan); }
-.tb-divider { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; }
-.zoom-label { font-size: 0.78rem; color: var(--muted); min-width: 44px; text-align: center; }
+.tb-divider { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
+
+/* CUSTOM ZOOM INPUT */
+.zoom-wrap { display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0; }
+.zoom-input {
+  width: 52px; text-align: center;
+  background: rgba(15,21,53,0.8); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--white); font-size: 0.75rem;
+  padding: 0.28rem 0.3rem; outline: none; font-family: inherit;
+  transition: border-color 0.2s;
+}
+.zoom-input:focus { border-color: var(--cyan); }
+.zoom-pct { font-size: 0.72rem; color: var(--muted); }
 
 /* SEARCH BAR */
 .search-bar {
-  display: none;
-  position: fixed; top: 96px; left: 50%; transform: translateX(-50%);
-  z-index: 98; width: 100%; max-width: 500px; padding: 0 1rem;
+  display: none; position: fixed; top: 92px; left: 50%; transform: translateX(-50%);
+  z-index: 98; width: 100%; max-width: 500px; padding: 0.4rem 1rem;
+  background: rgba(15,21,53,0.97); border-bottom: 1px solid var(--border);
 }
 .search-bar.visible { display: flex; gap: 0.5rem; align-items: center; }
 .search-input {
-  flex: 1; background: rgba(15,21,53,0.95); border: 1px solid var(--cyan);
-  border-radius: 6px; padding: 0.5rem 1rem; color: var(--white);
-  font-size: 0.85rem; outline: none; font-family: inherit;
+  flex: 1; background: rgba(26,37,80,0.9); border: 1px solid var(--cyan);
+  border-radius: 6px; padding: 0.4rem 0.9rem; color: var(--white);
+  font-size: 0.82rem; outline: none; font-family: inherit;
 }
 .search-input::placeholder { color: var(--muted); }
-.search-info { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+.search-info { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
 .search-nav-btn {
   background: rgba(0,194,224,0.1); border: 1px solid var(--border);
-  color: var(--white); padding: 0.35rem 0.6rem; border-radius: 4px;
-  cursor: pointer; font-size: 0.8rem; transition: all 0.2s;
+  color: var(--white); padding: 0.3rem 0.55rem; border-radius: 4px;
+  cursor: pointer; font-size: 0.78rem; transition: all 0.2s;
 }
 .search-nav-btn:hover { border-color: var(--cyan); }
-.search-close {
-  background: none; border: none; color: var(--muted);
-  cursor: pointer; font-size: 1rem; padding: 0.2rem 0.4rem;
-}
+.search-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 0.1rem 0.3rem; }
 
-/* VIEWER */
+/* VIEWER AREA */
 #viewer-wrap {
   position: relative; z-index: 1;
-  margin-top: 96px; padding: 1.5rem 1rem 5rem;
+  margin-top: 92px;
+  padding: 1.5rem 1rem 5rem;
   display: flex; flex-direction: row; justify-content: center;
-  align-items: flex-start; gap: 1rem; min-height: calc(100vh - 96px);
-  flex-wrap: wrap;
+  align-items: flex-start; gap: 12px; min-height: calc(100vh - 92px);
 }
-#viewer-wrap.has-search { margin-top: 136px; }
+#viewer-wrap.has-search { margin-top: 132px; }
 
 #loading {
   display: flex; flex-direction: column; align-items: center; gap: 1rem;
@@ -106,26 +116,22 @@ body::before {
 .load-text { font-size: 0.85rem; }
 
 .canvas-wrap {
-  position: relative; margin: 0;
+  position: relative; flex-shrink: 0;
   box-shadow: 0 16px 48px rgba(0,0,0,0.6);
-  border: 1px solid var(--border); border-radius: 4px;
-  overflow: hidden; display: block; flex-shrink: 0;
+  border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
 }
 .canvas-wrap canvas { display: block; }
 .canvas-wrap::after {
-  content: 'F(ORTH) PART B EASY STUDY NOTES · ORTHO TIMES · M.B. MEKKI';
+  content: 'F(ORTH) PART B · ORTHO TIMES · M.B. MEKKI';
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   font-size: 1rem; font-weight: 700; letter-spacing: 0.2em;
-  color: rgba(0,194,224,0.06); pointer-events: none;
+  color: rgba(0,194,224,0.055); pointer-events: none;
   white-space: nowrap; overflow: hidden;
   transform: rotate(-30deg) scale(1.5); text-transform: uppercase; z-index: 10;
 }
-
-/* SEARCH HIGHLIGHT OVERLAY */
 .highlight-overlay {
   position: absolute; background: rgba(255,220,0,0.35);
-  border: 1px solid rgba(255,200,0,0.6); pointer-events: none; z-index: 11;
-  border-radius: 2px;
+  border: 1px solid rgba(255,200,0,0.6); pointer-events: none; z-index: 11; border-radius: 2px;
 }
 
 /* PAGE NAV */
@@ -133,40 +139,37 @@ body::before {
   position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
   display: flex; align-items: center; gap: 0.8rem; z-index: 100;
   background: rgba(15,21,53,0.97); backdrop-filter: blur(12px);
-  border: 1px solid var(--border); border-radius: 50px;
-  padding: 0.5rem 1.2rem;
+  border: 1px solid var(--border); border-radius: 50px; padding: 0.5rem 1.2rem;
 }
 .nav-btn { background: none; border: none; color: var(--white); font-size: 1rem; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px; transition: color 0.2s; }
 .nav-btn:hover { color: var(--cyan); }
 .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.page-input { width: 44px; text-align: center; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--white); font-size: 0.82rem; padding: 0.1rem 0.2rem; outline: none; }
+.page-input { width: 44px; text-align: center; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--white); font-size: 0.82rem; padding: 0.1rem; outline: none; }
 .page-input:focus { border-bottom-color: var(--cyan); }
-.page-total { font-size: 0.8rem; color: var(--muted); }
+.page-total { font-size: 0.78rem; color: var(--muted); }
 
-/* FULLSCREEN */
-:fullscreen body::before { display: none; }
-:fullscreen .topbar, :fullscreen .toolbar, :fullscreen .page-nav, :fullscreen .search-bar { position: fixed; }
+/* TRUE FULLSCREEN — hide OS chrome, keep our UI */
+:fullscreen { background: var(--navy); }
+:-webkit-full-screen { background: var(--navy); }
+
+/* SEARCH RESULTS */
+#search-results-panel {
+  display: none; position: fixed; top: 132px; right: 1rem; z-index: 97;
+  background: rgba(15,21,53,0.97); border: 1px solid var(--border);
+  border-radius: 8px; width: 220px; max-height: 280px; overflow-y: auto;
+  backdrop-filter: blur(12px);
+}
+#search-results-panel .result-item {
+  padding: 0.55rem 1rem; font-size: 0.75rem; cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--muted); transition: background 0.15s;
+}
+#search-results-panel .result-item:hover { background: rgba(0,194,224,0.1); color: var(--white); }
+#search-results-panel .result-item .pg { color: var(--cyan); font-weight: 700; margin-right: 0.4rem; }
 
 /* DEVTOOLS */
 #dt-warning { display: none; position: fixed; inset: 0; z-index: 9999; background: var(--navy); flex-direction: column; align-items: center; justify-content: center; gap: 1rem; text-align: center; }
 #dt-warning h2 { font-size: 1.6rem; color: var(--cyan); }
 #dt-warning p { color: var(--muted); max-width: 400px; line-height: 1.7; }
-
-/* SEARCH RESULTS PANEL */
-#search-results-panel {
-  display: none; position: fixed; top: 136px; right: 1rem;
-  z-index: 97; background: rgba(15,21,53,0.97);
-  border: 1px solid var(--border); border-radius: 8px;
-  width: 220px; max-height: 300px; overflow-y: auto;
-  backdrop-filter: blur(12px);
-}
-#search-results-panel .result-item {
-  padding: 0.6rem 1rem; font-size: 0.78rem; cursor: pointer;
-  border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--muted);
-  transition: background 0.15s;
-}
-#search-results-panel .result-item:hover { background: rgba(0,194,224,0.1); color: var(--white); }
-#search-results-panel .result-item .pg { color: var(--cyan); font-weight: 700; margin-right: 0.4rem; }
 </style>
 </head>
 <body>
@@ -177,7 +180,7 @@ body::before {
 </div>
 
 <!-- TOPBAR -->
-<div class="topbar">
+<div class="topbar" id="topbar">
   <span class="topbar-brand">F(Orth) Part B · Easy Study Notes</span>
   <div class="topbar-right">
     <span class="page-info" id="top-page-info">Loading…</span>
@@ -187,20 +190,23 @@ body::before {
 </div>
 
 <!-- TOOLBAR -->
-<div class="toolbar">
-  <button class="tb-btn" onclick="zoomOut()">− Zoom</button>
-  <span class="zoom-label" id="zoom-label">150%</span>
-  <button class="tb-btn" onclick="zoomIn()">+ Zoom</button>
+<div class="toolbar" id="toolbar">
+  <button class="tb-btn" onclick="zoomOut()">−</button>
+  <div class="zoom-wrap">
+    <input class="zoom-input" id="zoom-input" type="number" min="25" max="300" value="100" onchange="applyZoom(this.value)" onkeydown="if(event.key==='Enter')applyZoom(this.value)">
+    <span class="zoom-pct">%</span>
+  </div>
+  <button class="tb-btn" onclick="zoomIn()">+</button>
   <div class="tb-divider"></div>
   <button class="tb-btn" onclick="fitWidth()">⟷ Width</button>
-  <button class="tb-btn" onclick="fitPage()">⛶ Page</button>
+  <button class="tb-btn" onclick="fitPage()">□ Reset</button>
   <div class="tb-divider"></div>
   <button class="tb-btn" id="dual-btn" onclick="toggleDualPage()">⊞ Dual Page</button>
   <div class="tb-divider"></div>
   <button class="tb-btn" onclick="toggleSearch()" id="search-btn">🔍 Search</button>
 </div>
 
-<!-- SEARCH BAR -->
+<!-- SEARCH -->
 <div class="search-bar" id="search-bar">
   <input class="search-input" id="search-input" placeholder="Search text in document…" oninput="doSearch(this.value)">
   <span class="search-info" id="search-info"></span>
@@ -208,7 +214,6 @@ body::before {
   <button class="search-nav-btn" onclick="nextMatch()">↓</button>
   <button class="search-close" onclick="closeSearch()">✕</button>
 </div>
-
 <div id="search-results-panel"></div>
 
 <!-- VIEWER -->
@@ -220,7 +225,7 @@ body::before {
 </div>
 
 <!-- PAGE NAV -->
-<div class="page-nav">
+<div class="page-nav" id="page-nav">
   <button class="nav-btn" id="btn-first" onclick="goFirst()">⟪</button>
   <button class="nav-btn" id="btn-prev" onclick="goPrev()">‹</button>
   <input class="page-input" id="page-input" type="number" min="1" value="1" onchange="goToPage(this.value)">
@@ -253,15 +258,17 @@ setInterval(() => {
   if (open !== devToolsOpen) { devToolsOpen = open; dtWarning.style.display = open ? 'flex' : 'none'; }
 }, 1000);
 
-// ── PDF.JS ──
+// ── SETUP ──
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 let pdfDoc = null, currentPage = 1, totalPages = 0;
-let scale = 1.5, rendering = false, renderQueue = null;
+let scale = 1.0;  // Default 100%
+let rendering = false, renderQueue = null;
 let dualPage = false;
 let searchMatches = [], searchMatchIndex = 0, pageTextCache = {};
+let isFullscreen = false;
 
-// ── LOAD ──
+// ── LOAD PDF ──
 async function loadPDF() {
   try {
     document.querySelector('.load-text').textContent = 'Fetching…';
@@ -282,22 +289,19 @@ async function loadPDF() {
 async function renderPage(num) {
   if (rendering) { renderQueue = num; return; }
   rendering = true; currentPage = num; updateNav();
-
   const wrap = document.getElementById('viewer-wrap');
   wrap.querySelectorAll('.canvas-wrap').forEach(el => el.remove());
-
   if (dualPage) {
-    await renderSingleCanvas(num, wrap);
-    if (num + 1 <= totalPages) await renderSingleCanvas(num + 1, wrap);
+    await renderCanvas(num, wrap);
+    if (num + 1 <= totalPages) await renderCanvas(num + 1, wrap);
   } else {
-    await renderSingleCanvas(num, wrap);
+    await renderCanvas(num, wrap);
   }
-
   rendering = false;
   if (renderQueue !== null) { const next = renderQueue; renderQueue = null; renderPage(next); }
 }
 
-async function renderSingleCanvas(num, wrap) {
+async function renderCanvas(num, wrap) {
   const page = await pdfDoc.getPage(num);
   const viewport = page.getViewport({ scale });
   const div = document.createElement('div');
@@ -307,75 +311,87 @@ async function renderSingleCanvas(num, wrap) {
   div.style.width = viewport.width + 'px'; div.style.height = viewport.height + 'px';
   div.appendChild(canvas); wrap.appendChild(div);
   await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-
-  // Cache text for search
   if (!pageTextCache[num]) {
-    const textContent = await page.getTextContent();
-    pageTextCache[num] = { items: textContent.items, viewport };
+    const tc = await page.getTextContent();
+    pageTextCache[num] = { items: tc.items, viewport };
   }
 }
 
 function updateNav() {
   document.getElementById('page-input').value = currentPage;
-  const displayPage = dualPage ? `${currentPage}–${Math.min(currentPage+1, totalPages)}` : currentPage;
-  document.getElementById('top-page-info').textContent = `Page ${displayPage} of ${totalPages}`;
+  const pageLabel = dualPage ? `${currentPage}–${Math.min(currentPage+1,totalPages)}` : currentPage;
+  document.getElementById('top-page-info').textContent = `Page ${pageLabel} of ${totalPages}`;
   document.getElementById('btn-prev').disabled = currentPage <= 1;
   document.getElementById('btn-first').disabled = currentPage <= 1;
-  document.getElementById('btn-next').disabled = dualPage ? currentPage + 2 > totalPages : currentPage >= totalPages;
+  document.getElementById('btn-next').disabled = dualPage ? currentPage+2 > totalPages : currentPage >= totalPages;
   document.getElementById('btn-last').disabled = currentPage >= totalPages;
-  document.getElementById('zoom-label').textContent = Math.round(scale * 100) + '%';
+  document.getElementById('zoom-input').value = Math.round(scale * 100);
 }
 
-function goPrev() { if (currentPage > 1) renderPage(dualPage ? Math.max(1, currentPage - 2) : currentPage - 1); }
-function goNext() {
-  const next = dualPage ? currentPage + 2 : currentPage + 1;
-  if (next <= totalPages) renderPage(next);
-}
+// ── NAVIGATION ──
+function goPrev() { if (currentPage > 1) renderPage(dualPage ? Math.max(1, currentPage-2) : currentPage-1); }
+function goNext() { const n = dualPage ? currentPage+2 : currentPage+1; if (n <= totalPages) renderPage(n); }
 function goFirst() { renderPage(1); }
 function goLast() { renderPage(totalPages); }
-function goToPage(n) { renderPage(Math.max(1, Math.min(totalPages, parseInt(n) || 1))); }
-function zoomIn() { scale = Math.min(3, scale + 0.25); renderPage(currentPage); }
-function zoomOut() { scale = Math.max(0.5, scale - 0.25); renderPage(currentPage); }
-function fitWidth() { scale = dualPage ? (window.innerWidth - 120) / (612 * 2) : (window.innerWidth - 80) / 612; renderPage(currentPage); }
-function fitPage() { scale = 1.5; renderPage(currentPage); }
+function goToPage(n) { renderPage(Math.max(1, Math.min(totalPages, parseInt(n)||1))); }
+
+// ── ZOOM ──
+function applyZoom(val) {
+  let pct = Math.max(25, Math.min(300, parseInt(val) || 100));
+  document.getElementById('zoom-input').value = pct;
+  scale = pct / 100;
+  renderPage(currentPage);
+}
+function zoomIn() { applyZoom(Math.round(scale * 100) + 10); }
+function zoomOut() { applyZoom(Math.round(scale * 100) - 10); }
+function fitWidth() {
+  const availW = window.innerWidth - (dualPage ? 140 : 80);
+  const pct = Math.round((availW / 612) * 100);
+  applyZoom(pct);
+}
+function fitPage() { applyZoom(100); }
 
 // ── DUAL PAGE ──
 function toggleDualPage() {
   dualPage = !dualPage;
   document.getElementById('dual-btn').classList.toggle('active', dualPage);
   document.getElementById('dual-btn').textContent = dualPage ? '▣ Single Page' : '⊞ Dual Page';
+  // In dual page mode, make sure we're on an odd page
+  if (dualPage && currentPage % 2 === 0) currentPage = Math.max(1, currentPage - 1);
   renderPage(currentPage);
 }
 
-// ── FULLSCREEN ──
+// ── TRUE FULLSCREEN ──
 function toggleFullscreen() {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen();
-    document.getElementById('fs-btn').textContent = '✕ Exit Fullscreen';
+  const el = document.documentElement;
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    document.getElementById('fs-btn').textContent = '✕ Exit Full';
+    isFullscreen = true;
   } else {
-    document.exitFullscreen();
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
     document.getElementById('fs-btn').textContent = '⛶ Fullscreen';
+    isFullscreen = false;
   }
 }
 document.addEventListener('fullscreenchange', () => {
-  if (!document.fullscreenElement) document.getElementById('fs-btn').textContent = '⛶ Fullscreen';
+  if (!document.fullscreenElement) { document.getElementById('fs-btn').textContent = '⛶ Fullscreen'; isFullscreen = false; }
+});
+document.addEventListener('webkitfullscreenchange', () => {
+  if (!document.webkitFullscreenElement) { document.getElementById('fs-btn').textContent = '⛶ Fullscreen'; isFullscreen = false; }
 });
 
 // ── SEARCH ──
 function toggleSearch() {
   const bar = document.getElementById('search-bar');
-  const wrap = document.getElementById('viewer-wrap');
-  const btn = document.getElementById('search-btn');
   const visible = bar.classList.toggle('visible');
-  btn.classList.toggle('active', visible);
-  wrap.classList.toggle('has-search', visible);
-  if (visible) {
-    document.getElementById('search-input').focus();
-  } else {
-    closeSearch();
-  }
+  document.getElementById('search-btn').classList.toggle('active', visible);
+  document.getElementById('viewer-wrap').classList.toggle('has-search', visible);
+  if (visible) document.getElementById('search-input').focus();
+  else closeSearch();
 }
-
 function closeSearch() {
   document.getElementById('search-bar').classList.remove('visible');
   document.getElementById('search-btn').classList.remove('active');
@@ -384,108 +400,78 @@ function closeSearch() {
   document.getElementById('search-info').textContent = '';
   document.getElementById('search-results-panel').style.display = 'none';
   document.getElementById('search-results-panel').innerHTML = '';
-  clearHighlights();
-  searchMatches = []; searchMatchIndex = 0;
+  clearHighlights(); searchMatches = []; searchMatchIndex = 0;
 }
 
 async function doSearch(query) {
-  clearHighlights();
-  searchMatches = [];
+  clearHighlights(); searchMatches = [];
   const panel = document.getElementById('search-results-panel');
-  if (!query || query.length < 2) {
-    document.getElementById('search-info').textContent = '';
-    panel.style.display = 'none'; panel.innerHTML = '';
-    return;
-  }
-
+  if (!query || query.length < 2) { document.getElementById('search-info').textContent = ''; panel.style.display = 'none'; panel.innerHTML = ''; return; }
   document.getElementById('search-info').textContent = 'Searching…';
-
-  // Search all pages
   const lq = query.toLowerCase();
   const results = [];
   for (let p = 1; p <= totalPages; p++) {
     if (!pageTextCache[p]) {
       const page = await pdfDoc.getPage(p);
-      const textContent = await page.getTextContent();
-      const viewport = page.getViewport({ scale });
-      pageTextCache[p] = { items: textContent.items, viewport };
+      const tc = await page.getTextContent();
+      pageTextCache[p] = { items: tc.items, viewport: page.getViewport({ scale }) };
     }
     const text = pageTextCache[p].items.map(i => i.str).join(' ').toLowerCase();
-    if (text.includes(lq)) {
-      results.push(p);
-      searchMatches.push(p);
-    }
+    if (text.includes(lq)) { results.push(p); searchMatches.push(p); }
   }
-
-  if (!results.length) {
-    document.getElementById('search-info').textContent = 'Not found';
-    panel.style.display = 'none'; return;
-  }
-
+  if (!results.length) { document.getElementById('search-info').textContent = 'Not found'; panel.style.display = 'none'; return; }
   document.getElementById('search-info').textContent = `${results.length} page${results.length > 1 ? 's' : ''}`;
   searchMatchIndex = 0;
-
-  // Show results panel
   panel.innerHTML = results.map(pg => {
     const snippet = pageTextCache[pg].items.map(i => i.str).join(' ');
     const idx = snippet.toLowerCase().indexOf(lq);
-    const preview = snippet.substring(Math.max(0, idx - 20), idx + 40).trim();
-    return `<div class="result-item" onclick="goToPage(${pg})"><span class="pg">P.${pg}</span>${preview}…</div>`;
+    const preview = snippet.substring(Math.max(0, idx-20), idx+40).trim();
+    return `<div class="result-item" onclick="jumpToMatch(${pg})"><span class="pg">P.${pg}</span>${preview}…</div>`;
   }).join('');
   panel.style.display = 'block';
+  jumpToMatch(results[0]);
+}
 
-  // Go to first match and highlight
-  goToPage(results[0]);
-  setTimeout(() => highlightOnPage(results[0], query), 600);
+function jumpToMatch(pg) {
+  goToPage(pg);
+  setTimeout(() => highlightOnPage(pg, document.getElementById('search-input').value), 700);
 }
 
 function highlightOnPage(pageNum, query) {
+  clearHighlights();
   const wrap = document.getElementById('viewer-wrap');
   const pageDiv = wrap.querySelector(`[data-page-num="${pageNum}"]`);
   if (!pageDiv || !pageTextCache[pageNum]) return;
-  clearHighlights();
   const lq = query.toLowerCase();
-  const { items, viewport } = pageTextCache[pageNum];
+  const { items } = pageTextCache[pageNum];
+  const vp = pageDiv.querySelector('canvas');
+  const h = vp ? vp.height : 0;
   items.forEach(item => {
-    if (item.str.toLowerCase().includes(lq)) {
-      const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
-      const highlight = document.createElement('div');
-      highlight.className = 'highlight-overlay';
-      highlight.style.left = tx[4] + 'px';
-      highlight.style.top = (viewport.height - tx[5] - item.height * scale) + 'px';
-      highlight.style.width = (item.width * scale) + 'px';
-      highlight.style.height = (item.height * scale + 4) + 'px';
-      pageDiv.appendChild(highlight);
-    }
+    if (!item.str.toLowerCase().includes(lq)) return;
+    const tx = pdfjsLib.Util.transform(pageDiv.querySelector('canvas').getContext('2d').getTransform ? [scale,0,0,scale,0,0] : [scale,0,0,scale,0,0], item.transform);
+    const highlight = document.createElement('div');
+    highlight.className = 'highlight-overlay';
+    highlight.style.left = (item.transform[4] * scale) + 'px';
+    highlight.style.top = (h - item.transform[5] * scale - item.height * scale) + 'px';
+    highlight.style.width = (item.width * scale) + 'px';
+    highlight.style.height = Math.max(item.height * scale, 10) + 'px';
+    pageDiv.appendChild(highlight);
   });
 }
 
-function clearHighlights() {
-  document.querySelectorAll('.highlight-overlay').forEach(el => el.remove());
-}
-
-function prevMatch() {
-  if (!searchMatches.length) return;
-  searchMatchIndex = (searchMatchIndex - 1 + searchMatches.length) % searchMatches.length;
-  const pg = searchMatches[searchMatchIndex];
-  goToPage(pg);
-  setTimeout(() => highlightOnPage(pg, document.getElementById('search-input').value), 600);
-}
-
-function nextMatch() {
-  if (!searchMatches.length) return;
-  searchMatchIndex = (searchMatchIndex + 1) % searchMatches.length;
-  const pg = searchMatches[searchMatchIndex];
-  goToPage(pg);
-  setTimeout(() => highlightOnPage(pg, document.getElementById('search-input').value), 600);
-}
+function clearHighlights() { document.querySelectorAll('.highlight-overlay').forEach(el => el.remove()); }
+function prevMatch() { if (!searchMatches.length) return; searchMatchIndex = (searchMatchIndex-1+searchMatches.length)%searchMatches.length; jumpToMatch(searchMatches[searchMatchIndex]); }
+function nextMatch() { if (!searchMatches.length) return; searchMatchIndex = (searchMatchIndex+1)%searchMatches.length; jumpToMatch(searchMatches[searchMatchIndex]); }
 
 // ── KEYBOARD ──
 document.addEventListener('keydown', e => {
-  if (document.getElementById('search-input') === document.activeElement) return;
+  if (document.activeElement === document.getElementById('search-input')) return;
+  if (document.activeElement === document.getElementById('zoom-input')) return;
+  if (document.activeElement === document.getElementById('page-input')) return;
   if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goNext();
   if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goPrev();
   if (e.key === 'Escape') closeSearch();
+  if (e.key === 'f' || e.key === 'F') toggleFullscreen();
 });
 
 // ── LOGOUT ──
@@ -501,7 +487,7 @@ async function logout() {
   window.location.href = 'index.html';
 }
 
-// ── AUTH CHECK ──
+// ── AUTH ──
 if (!localStorage.getItem('vaultdocs_session')) {
   window.location.href = 'index.html';
 } else {
