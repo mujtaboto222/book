@@ -4,639 +4,594 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>F(Orth) Part B — Study Notes</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
-  :root {
-    --cyan: #00c2e0;
-    --white: #f0f4ff;
-    --muted: #5a6a8a;
-    --border: rgba(0,194,224,0.2);
-    --bar-h: 46px;
-    --nav-h: 54px;
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; overflow: hidden; background: #000; color: var(--white); font-family: 'Segoe UI', system-ui, sans-serif; }
-
-  /* ── TOOLBAR (the ONLY top element) ── */
-  #toolbar {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-    height: var(--bar-h);
-    background: #0a0a0a;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 6px;
-    padding: 0 8px;
-    overflow-x: auto; overflow-y: hidden;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-  #toolbar::-webkit-scrollbar { display: none; }
-
-  .tb { 
-    flex-shrink: 0;
-    background: rgba(0,194,224,0.07); 
-    border: 1px solid var(--border);
-    color: var(--white); 
-    font-size: 0.7rem; 
-    padding: 5px 10px;
-    border-radius: 5px; 
-    cursor: pointer; 
-    white-space: nowrap;
-    min-height: 30px;
-    transition: background 0.15s, border-color 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .tb:active, .tb.on { background: rgba(0,194,224,0.22); border-color: var(--cyan); color: var(--cyan); }
-
-  .sep { flex-shrink: 0; width: 1px; height: 18px; background: var(--border); }
-
-  /* Zoom slider group */
-  #zoom-group { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
-  #zoom-slider {
-    -webkit-appearance: none; appearance: none;
-    width: 80px; height: 4px;
-    border-radius: 2px;
-    background: linear-gradient(to right, var(--cyan) 0%, var(--border) 0%);
-    outline: none; cursor: pointer; flex-shrink: 0;
-  }
-  #zoom-slider::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 14px; height: 14px; border-radius: 50%;
-    background: var(--cyan); cursor: pointer;
-    border: 2px solid #000;
-    box-shadow: 0 0 4px rgba(0,194,224,0.5);
-  }
-  #zoom-slider::-moz-range-thumb {
-    width: 14px; height: 14px; border-radius: 50%;
-    background: var(--cyan); cursor: pointer;
-    border: 2px solid #000;
-  }
-  #zoom-label { font-size: 0.65rem; color: var(--muted); min-width: 32px; text-align: center; flex-shrink: 0; }
-
-  /* page counter */
-  #pg-info { font-size: 0.65rem; color: var(--muted); flex-shrink: 0; white-space: nowrap; }
-
-  /* ── SEARCH BAR ── */
-  #search-bar {
-    display: none; position: fixed;
-    top: var(--bar-h); left: 0; right: 0; z-index: 199;
-    background: #080808; border-bottom: 1px solid var(--border);
-    padding: 6px 10px; gap: 6px; align-items: center;
-  }
-  #search-bar.open { display: flex; }
-  #search-bar input {
-    flex: 1; background: #111; border: 1px solid var(--cyan);
-    border-radius: 6px; padding: 6px 10px; color: var(--white);
-    font-size: 0.82rem; outline: none; min-height: 32px;
-  }
-  .s-btn {
-    background: rgba(0,194,224,0.1); border: 1px solid var(--border);
-    color: var(--white); padding: 4px 8px; border-radius: 4px;
-    cursor: pointer; font-size: 0.75rem; min-height: 30px; min-width: 30px;
-  }
-  #search-count { font-size: 0.65rem; color: var(--muted); white-space: nowrap; }
-
-  /* ── PDF SCROLL AREA ── */
-  #viewer {
-    position: fixed;
-    top: var(--bar-h); left: 0; right: 0; bottom: var(--nav-h);
-    overflow: auto;
-    background: #000;
-    display: flex; flex-direction: column; align-items: center;
-    padding: 12px 8px;
-    -webkit-overflow-scrolling: touch;
-  }
-  #viewer.search-open { top: calc(var(--bar-h) + 46px); }
-
-  /* ── PAGE CANVAS WRAPPERS ── */
-  .pw {
-    position: relative; flex-shrink: 0;
-    margin-bottom: 10px;
-    border: 1px solid var(--border);
-    border-radius: 3px; overflow: hidden;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.6);
-  }
-  .pw canvas { display: block; }
-  /* watermark */
-  .pw::after {
-    content: 'F(ORTH) PART B · ORTHO TIMES · M.B. MEKKI';
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.85rem; font-weight: 700; letter-spacing: 0.12em;
-    color: rgba(0,194,224,0.05); pointer-events: none;
-    transform: rotate(-30deg) scale(1.5); z-index: 5;
-  }
-  .hl {
-    position: absolute; background: rgba(255,220,0,0.35);
-    border: 1px solid rgba(255,200,0,0.5); pointer-events: none; z-index: 6; border-radius: 2px;
-  }
-
-  /* loading */
-  #loading {
-    display: flex; flex-direction: column; align-items: center;
-    gap: 12px; padding: 60px 20px; color: var(--muted);
-  }
-  .spin {
-    width: 34px; height: 34px;
-    border: 3px solid var(--border); border-top-color: var(--cyan);
-    border-radius: 50%; animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ── BOTTOM NAV ── */
-  #nav {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
-    height: var(--nav-h);
-    background: #0a0a0a; border-top: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    padding: 0 12px;
-  }
-  .nb {
-    background: rgba(0,194,224,0.08); border: 1px solid var(--border);
-    color: var(--white); border-radius: 6px; cursor: pointer;
-    width: 44px; height: 40px; font-size: 1rem;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s; flex-shrink: 0;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .nb:active { background: rgba(0,194,224,0.2); border-color: var(--cyan); }
-  .nb:disabled { opacity: 0.3; pointer-events: none; }
-  #pg-input {
-    width: 46px; text-align: center; background: #111;
-    border: 1px solid var(--border); border-radius: 6px;
-    color: var(--white); font-size: 0.85rem; padding: 6px 4px; outline: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  #pg-input:focus { border-color: var(--cyan); }
-  #pg-total { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
-
-  /* search results dropdown */
-  #results-panel {
-    display: none; position: fixed; z-index: 198;
-    top: calc(var(--bar-h) + 46px); right: 6px;
-    background: #0d0d0d; border: 1px solid var(--border);
-    border-radius: 8px; width: min(220px,72vw); max-height: 220px; overflow-y: auto;
-  }
-  #results-panel .ri {
-    padding: 8px 10px; font-size: 0.72rem; cursor: pointer;
-    border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--muted);
-  }
-  #results-panel .ri .rp { color: var(--cyan); font-weight: 700; margin-right: 4px; }
-
-  /* devtools warning */
-  #dtw {
-    display: none; position: fixed; inset: 0; z-index: 9999;
-    background: #000; flex-direction: column; align-items: center;
-    justify-content: center; gap: 12px; text-align: center; padding: 2rem;
-  }
-  #dtw h2 { color: var(--cyan); font-size: 1.3rem; }
-  #dtw p { color: var(--muted); max-width: 300px; line-height: 1.7; font-size: 0.88rem; }
-
-  /* page-mode hides scroll, shows only current page */
-  body.page-mode #viewer { padding: 8px; }
+:root {
+  --navy: #0f1535; --navy-mid: #1a2550;
+  --cyan: #00c2e0; --white: #f5f7ff;
+  --muted: #8a9bc4; --border: rgba(0,194,224,0.2);
+  --topbar-h: 48px; --toolbar-h: 44px;
+  --nav-h: 56px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: var(--navy); color: var(--white);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  user-select: none; -webkit-user-select: none;
+  touch-action: pan-x pan-y;
+}
+/* TOPBAR */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--topbar-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1rem;
+  background: rgba(15,21,53,0.97); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar-brand {
+  font-size: 0.7rem; font-weight: 700; color: var(--cyan);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 55vw;
+}
+.topbar-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+.page-info { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+.icon-btn {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--muted); font-size: 0.7rem; padding: 0.3rem 0.6rem;
+  border-radius: 4px; cursor: pointer; transition: all 0.2s;
+  white-space: nowrap; -webkit-tap-highlight-color: transparent;
+}
+.icon-btn:hover, .icon-btn:active { border-color: var(--cyan); color: var(--cyan); }
+/* TOOLBAR */
+.toolbar {
+  position: fixed; top: var(--topbar-h); left: 0; right: 0; z-index: 99;
+  height: var(--toolbar-h);
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+  padding: 0 0.5rem; overflow-x: auto; overflow-y: hidden;
+  background: rgba(26,37,80,0.97); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.toolbar::-webkit-scrollbar { display: none; }
+.tb-btn {
+  background: rgba(0,194,224,0.08); border: 1px solid var(--border);
+  color: var(--white); font-size: 0.72rem; padding: 0.28rem 0.65rem;
+  border-radius: 5px; cursor: pointer; transition: all 0.2s;
+  white-space: nowrap; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent; min-height: 32px;
+}
+.tb-btn:active { background: rgba(0,194,224,0.25); border-color: var(--cyan); }
+.tb-btn.active { background: rgba(0,194,224,0.2); border-color: var(--cyan); color: var(--cyan); }
+.tb-divider { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
+/* ZOOM */
+.zoom-wrap { display: flex; align-items: center; gap: 0.2rem; flex-shrink: 0; }
+.zoom-input {
+  width: 46px; text-align: center;
+  background: rgba(15,21,53,0.8); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--white); font-size: 0.72rem;
+  padding: 0.25rem; outline: none; font-family: inherit;
+  min-height: 28px;
+}
+.zoom-input:focus { border-color: var(--cyan); }
+.zoom-pct { font-size: 0.68rem; color: var(--muted); }
+/* SEARCH BAR */
+.search-bar {
+  display: none; position: fixed;
+  top: calc(var(--topbar-h) + var(--toolbar-h));
+  left: 0; right: 0; z-index: 98;
+  padding: 0.4rem 0.8rem; gap: 0.4rem; align-items: center;
+  background: rgba(15,21,53,0.97); border-bottom: 1px solid var(--border);
+}
+.search-bar.visible { display: flex; }
+.search-input {
+  flex: 1; background: rgba(26,37,80,0.9); border: 1px solid var(--cyan);
+  border-radius: 6px; padding: 0.4rem 0.8rem; color: var(--white);
+  font-size: 0.82rem; outline: none; font-family: inherit;
+  min-height: 36px;
+}
+.search-info { font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+.search-nav-btn {
+  background: rgba(0,194,224,0.1); border: 1px solid var(--border);
+  color: var(--white); padding: 0.3rem 0.5rem; border-radius: 4px;
+  cursor: pointer; font-size: 0.75rem; min-height: 32px; min-width: 32px;
+  -webkit-tap-highlight-color: transparent;
+}
+.search-close {
+  background: none; border: none; color: var(--muted);
+  cursor: pointer; font-size: 1.1rem; padding: 0.1rem 0.3rem;
+  min-height: 32px; min-width: 32px;
+}
+/* VIEWER SCROLL AREA */
+#viewer-scroll {
+  position: fixed;
+  top: calc(var(--topbar-h) + var(--toolbar-h));
+  left: 0; right: 0;
+  bottom: var(--nav-h);
+  overflow-y: auto; overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 1rem 0.5rem;
+  background: var(--navy);
+}
+#viewer-scroll.has-search {
+  top: calc(var(--topbar-h) + var(--toolbar-h) + 52px);
+}
+#viewer-wrap {
+  display: flex; flex-direction: row; justify-content: center;
+  align-items: flex-start; gap: 8px; width: 100%;
+  min-height: 100%;
+}
+#loading {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 1rem; padding: 4rem 2rem; color: var(--muted); width: 100%;
+}
+.spinner {
+  width: 36px; height: 36px; border: 3px solid var(--border);
+  border-top-color: var(--cyan); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.load-text { font-size: 0.82rem; }
+.canvas-wrap {
+  position: relative; flex-shrink: 0;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+}
+.canvas-wrap canvas { display: block; max-width: 100%; }
+.canvas-wrap::after {
+  content: 'F(ORTH) PART B · ORTHO TIMES · M.B. MEKKI';
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; font-weight: 700; letter-spacing: 0.15em;
+  color: rgba(0,194,224,0.055); pointer-events: none;
+  white-space: nowrap; overflow: hidden;
+  transform: rotate(-30deg) scale(1.5); text-transform: uppercase; z-index: 10;
+}
+.highlight-overlay {
+  position: absolute; background: rgba(255,220,0,0.35);
+  border: 1px solid rgba(255,200,0,0.6); pointer-events: none; z-index: 11; border-radius: 2px;
+}
+/* PAGE NAV — fixed bottom bar */
+.page-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  height: var(--nav-h);
+  display: flex; align-items: center; justify-content: center; gap: 0.8rem;
+  background: rgba(15,21,53,0.97); backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  padding: 0 1rem;
+}
+.nav-btn {
+  background: rgba(0,194,224,0.08); border: 1px solid var(--border);
+  color: var(--white); font-size: 1rem; cursor: pointer;
+  padding: 0.4rem 0.8rem; border-radius: 6px; transition: all 0.2s;
+  min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-btn:active { background: rgba(0,194,224,0.2); border-color: var(--cyan); }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.page-input {
+  width: 48px; text-align: center;
+  background: rgba(26,37,80,0.9); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--white); font-size: 0.85rem;
+  padding: 0.4rem; outline: none; min-height: 40px;
+}
+.page-input:focus { border-color: var(--cyan); }
+.page-total { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+/* SEARCH RESULTS */
+#search-results-panel {
+  display: none; position: fixed;
+  top: calc(var(--topbar-h) + var(--toolbar-h) + 52px);
+  right: 0.5rem; z-index: 97;
+  background: rgba(15,21,53,0.97); border: 1px solid var(--border);
+  border-radius: 8px; width: min(220px, 70vw); max-height: 240px; overflow-y: auto;
+  backdrop-filter: blur(12px);
+}
+#search-results-panel .result-item {
+  padding: 0.55rem 0.8rem; font-size: 0.73rem; cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--muted);
+  -webkit-tap-highlight-color: transparent;
+}
+#search-results-panel .result-item:active { background: rgba(0,194,224,0.1); }
+#search-results-panel .result-item .pg { color: var(--cyan); font-weight: 700; margin-right: 0.3rem; }
+/* DEVTOOLS */
+#dt-warning {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  background: var(--navy); flex-direction: column; align-items: center;
+  justify-content: center; gap: 1rem; text-align: center; padding: 2rem;
+}
+#dt-warning h2 { font-size: 1.4rem; color: var(--cyan); }
+#dt-warning p { color: var(--muted); max-width: 320px; line-height: 1.7; font-size: 0.9rem; }
+/* SWIPE HINT */
+.swipe-hint {
+  position: fixed; bottom: calc(var(--nav-h) + 8px); left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.65rem; color: rgba(138,155,196,0.4);
+  pointer-events: none; z-index: 99; white-space: nowrap;
+  animation: fadeHint 3s ease forwards;
+}
+@keyframes fadeHint { 0%,70%{opacity:1} 100%{opacity:0} }
+/* RESPONSIVE */
+@media (max-width: 480px) {
+  .topbar-brand { font-size: 0.62rem; }
+  .tb-btn { font-size: 0.68rem; padding: 0.25rem 0.5rem; }
+  .zoom-input { width: 38px; }
+}
+@media (min-width: 768px) {
+  :root { --topbar-h: 50px; --toolbar-h: 46px; --nav-h: 56px; }
+  .tb-btn { font-size: 0.78rem; padding: 0.32rem 0.8rem; }
+  .topbar-brand { font-size: 0.75rem; }
+}
 </style>
 </head>
 <body>
 
-<div id="dtw">
+<div id="dt-warning">
   <h2>⚠ Access Paused</h2>
-  <p>Developer tools detected. Please close DevTools to continue.</p>
+  <p>Developer tools detected. Please close DevTools to continue reading.</p>
 </div>
 
-<!-- TOOLBAR — the only bar at top -->
-<div id="toolbar">
-  <!-- Zoom slider group -->
-  <div id="zoom-group">
-    <button class="tb" id="btn-zm" onclick="adjZoom(-0.1)">−</button>
-    <input type="range" id="zoom-slider" min="30" max="250" value="100" step="5" oninput="sliderZoom(this.value)">
-    <button class="tb" id="btn-zp" onclick="adjZoom(0.1)">+</button>
-    <span id="zoom-label">100%</span>
+<!-- TOPBAR -->
+<div class="topbar">
+  <span class="topbar-brand">F(Orth) Part B · Easy Study Notes</span>
+  <div class="topbar-right">
+    <span class="page-info" id="top-page-info">Loading…</span>
+    <button class="icon-btn" onclick="toggleFullscreen()" id="fs-btn">⛶</button>
+    <button class="icon-btn" onclick="logout()">↩</button>
   </div>
+</div>
 
-  <div class="sep"></div>
-  <button class="tb" onclick="fitDefault()" title="Reset zoom">⊡</button>
-  <div class="sep"></div>
-  <button class="tb" id="btn-mode" onclick="toggleMode()">📄 Page</button>
-  <button class="tb" id="btn-dual" onclick="toggleDual()">⊞ Dual</button>
-  <div class="sep"></div>
-  <button class="tb" id="btn-search" onclick="toggleSearch()">🔍</button>
-  <div class="sep"></div>
-  <span id="pg-info">—</span>
-  <div class="sep"></div>
-  <button class="tb" id="btn-fs" onclick="toggleFS()">⛶</button>
-  <button class="tb" onclick="doLogout()">↩</button>
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <button class="tb-btn" onclick="zoomOut()">−</button>
+  <div class="zoom-wrap">
+    <input class="zoom-input" id="zoom-input" type="number" min="25" max="300" value="100"
+      onchange="applyZoom(this.value)" onkeydown="if(event.key==='Enter'){applyZoom(this.value);this.blur();}">
+    <span class="zoom-pct">%</span>
+  </div>
+  <button class="tb-btn" onclick="zoomIn()">+</button>
+  <div class="tb-divider"></div>
+  <button class="tb-btn" onclick="fitWidth()">⟷ Width</button>
+  <button class="tb-btn" onclick="fitPage()">□ 100%</button>
+  <div class="tb-divider"></div>
+  <button class="tb-btn" id="dual-btn" onclick="toggleDualPage()">⊞ Dual</button>
+  <div class="tb-divider"></div>
+  <button class="tb-btn" id="search-btn" onclick="toggleSearch()">🔍</button>
 </div>
 
 <!-- SEARCH -->
-<div id="search-bar">
-  <input id="s-input" placeholder="Search…" oninput="runSearch(this.value)" autocomplete="off">
-  <span id="search-count"></span>
-  <button class="s-btn" onclick="stepMatch(-1)">↑</button>
-  <button class="s-btn" onclick="stepMatch(1)">↓</button>
-  <button class="s-btn" onclick="closeSearch()">✕</button>
+<div class="search-bar" id="search-bar">
+  <input class="search-input" id="search-input" placeholder="Search document…" oninput="doSearch(this.value)">
+  <span class="search-info" id="search-info"></span>
+  <button class="search-nav-btn" onclick="prevMatch()">↑</button>
+  <button class="search-nav-btn" onclick="nextMatch()">↓</button>
+  <button class="search-close" onclick="closeSearch()">✕</button>
 </div>
-<div id="results-panel"></div>
+<div id="search-results-panel"></div>
 
-<!-- VIEWER -->
-<div id="viewer">
-  <div id="loading"><div class="spin"></div><p>Loading…</p></div>
+<!-- SCROLL AREA -->
+<div id="viewer-scroll">
+  <div id="viewer-wrap">
+    <div id="loading">
+      <div class="spinner"></div>
+      <p class="load-text">Verifying access…</p>
+    </div>
+  </div>
 </div>
 
-<!-- NAV -->
-<div id="nav">
-  <button class="nb" id="nb-first" onclick="goFirst()">⟪</button>
-  <button class="nb" id="nb-prev" onclick="goPrev()">‹</button>
-  <input id="pg-input" type="number" min="1" value="1"
-    onchange="goTo(+this.value)" onkeydown="if(e=>e.key==='Enter')this.blur()">
-  <span id="pg-total">/ —</span>
-  <button class="nb" id="nb-next" onclick="goNext()">›</button>
-  <button class="nb" id="nb-last" onclick="goLast()">⟫</button>
+<!-- PAGE NAV -->
+<div class="page-nav">
+  <button class="nav-btn" id="btn-first" onclick="goFirst()">⟪</button>
+  <button class="nav-btn" id="btn-prev" onclick="goPrev()">‹</button>
+  <input class="page-input" id="page-input" type="number" min="1" value="1"
+    onchange="goToPage(this.value)" onkeydown="if(event.key==='Enter')this.blur();">
+  <span class="page-total" id="page-total">/ —</span>
+  <button class="nav-btn" id="btn-next" onclick="goNext()">›</button>
+  <button class="nav-btn" id="btn-last" onclick="goLast()">⟫</button>
 </div>
 
 <script>
-/* ═══════════════════════════════════════════
-   AUTH — force sign-in on EVERY page load
-   Uses sessionStorage so it's cleared when
-   the tab/browser closes, preventing bypass.
-═══════════════════════════════════════════ */
-const SB_URL  = 'https://djbiatgxjmvwfcimofjt.supabase.co';
-const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqYmlhdGd4am12d2ZjaW1vZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NjU1MjcsImV4cCI6MjA5MDI0MTUyN30.m_gBey_jA13hVdjttSKtFMcrQO-dGokq1Fpu2XriLp0';
+// ── CONSTANTS ──
+const SUPABASE_URL = 'https://djbiatgxjmvwfcimofjt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqYmlhdGd4am12d2ZjaW1vZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NjU1MjcsImV4cCI6MjA5MDI0MTUyN30.m_gBey_jA13hVdjttSKtFMcrQO-dGokq1Fpu2XriLp0';
 
-// Always clear localStorage token — it persists across sessions so people bypass login
-localStorage.removeItem('vaultdocs_session');
-
-// Only allow access if index.html set a fresh sessionStorage token THIS tab session
-if (!sessionStorage.getItem('vaultdocs_auth')) {
-  window.location.replace('index.html');
-  throw new Error('not authed');
-}
-// Consume it immediately — so F5 / reload also forces re-login
-sessionStorage.removeItem('vaultdocs_auth');
-
-/* ═══════════════════════════════════════════
-   PROTECTIONS
-═══════════════════════════════════════════ */
+// ── PROTECTIONS ──
 document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('copy',  e => e.preventDefault());
-document.addEventListener('cut',   e => e.preventDefault());
-document.addEventListener('dragstart', e => e.preventDefault());
-window.addEventListener('beforeprint', e => { e.preventDefault(); window.stop(); });
 document.addEventListener('keydown', e => {
-  const b = [
-    e.ctrlKey  && ['c','a','s','p','u'].includes(e.key.toLowerCase()),
-    e.metaKey  && ['c','a','s','p','u'].includes(e.key.toLowerCase()),
+  const blocked = [
+    e.ctrlKey && ['c','a','s','p','u'].includes(e.key.toLowerCase()),
+    e.metaKey && ['c','a','s','p','u'].includes(e.key.toLowerCase()),
     e.key === 'PrintScreen', e.key === 'F12',
     e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase()),
   ];
-  if (b.some(Boolean)) { e.preventDefault(); e.stopPropagation(); return false; }
+  if (blocked.some(Boolean)) { e.preventDefault(); e.stopPropagation(); return false; }
 });
-let dtOpen = false;
+document.addEventListener('copy', e => e.preventDefault());
+document.addEventListener('cut', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+window.addEventListener('beforeprint', e => { e.preventDefault(); window.stop(); });
+
+const dtWarning = document.getElementById('dt-warning');
+let devToolsOpen = false;
 setInterval(() => {
-  const o = window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160;
-  if (o !== dtOpen) { dtOpen = o; document.getElementById('dtw').style.display = o ? 'flex' : 'none'; }
+  const open = window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160;
+  if (open !== devToolsOpen) { devToolsOpen = open; dtWarning.style.display = open ? 'flex' : 'none'; }
 }, 1000);
 
-/* ═══════════════════════════════════════════
-   PDF ENGINE
-═══════════════════════════════════════════ */
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// ── PDF.JS ──
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-let pdf = null, curPage = 1, total = 0;
-let scale = 1.0;
-let pageMode = false; // false = scroll all pages, true = single page
-let dual = false;
-let rendering = false, renderQ = null;
-let textCache = {};
-let matches = [], matchIdx = 0;
+let pdfDoc = null, currentPage = 1, totalPages = 0;
+let scale = 1.0, rendering = false, renderQueue = null;
+let dualPage = false;
+let searchMatches = [], searchMatchIndex = 0, pageTextCache = {};
 
-const viewer = document.getElementById('viewer');
+// ── TOUCH SWIPE ──
+let touchStartX = 0, touchStartY = 0;
+const scroll = document.getElementById('viewer-scroll');
+scroll.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+scroll.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+    if (dx < 0) goNext(); else goPrev();
+  }
+}, { passive: true });
 
-/* ── LOAD ── */
+// ── LOAD PDF ──
 async function loadPDF() {
   try {
-    const resp = await fetch('book.pdf');
-    const buf  = await resp.arrayBuffer();
-    pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-    total = pdf.numPages;
-    document.getElementById('pg-total').textContent = '/ ' + total;
-    document.getElementById('pg-input').max = total;
-    document.getElementById('loading').remove();
-    // Start with fit-to-width scale
-    scale = Math.min(1.4, (window.innerWidth - 16) / 612);
-    updateSlider();
-    await renderAll(); // scroll mode default
+    document.querySelector('.load-text').textContent = 'Fetching…';
+    const response = await fetch('book.pdf');
+    const arrayBuffer = await response.arrayBuffer();
+    document.querySelector('.load-text').textContent = 'Rendering…';
+    pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    totalPages = pdfDoc.numPages;
+    document.getElementById('page-total').textContent = '/ ' + totalPages;
+    document.getElementById('loading').style.display = 'none';
+
+    if (window.innerWidth < 768) fitWidth();
+    else renderPage(1);
+
+    if ('ontouchstart' in window) {
+      const hint = document.createElement('div');
+      hint.className = 'swipe-hint';
+      hint.textContent = 'Swipe left/right to turn pages';
+      document.body.appendChild(hint);
+      setTimeout(() => hint.remove(), 3500);
+    }
   } catch(e) {
-    document.querySelector('#loading p').textContent = 'Error: ' + e.message;
+    document.querySelector('.load-text').textContent = 'Error: ' + e.message;
   }
 }
 
-/* ── RENDER ALL PAGES (scroll mode) ── */
-async function renderAll() {
-  viewer.innerHTML = '';
-  for (let p = 1; p <= total; p++) {
-    const wrap = await makePage(p);
-    viewer.appendChild(wrap);
-  }
-  curPage = 1; updateNav();
-}
+// ── RENDER ──
+async function renderPage(num) {
+  if (rendering) { renderQueue = num; return; }
+  rendering = true; currentPage = num; updateNav();
+  const wrap = document.getElementById('viewer-wrap');
+  wrap.querySelectorAll('.canvas-wrap').forEach(el => el.remove());
 
-/* ── RENDER SINGLE/DUAL PAGE (page mode) ── */
-async function renderSingle(num) {
-  if (rendering) { renderQ = num; return; }
-  rendering = true;
-  curPage = num; updateNav();
-  viewer.innerHTML = '';
-  const wrap = await makePage(num);
-  viewer.appendChild(wrap);
-  if (dual && num + 1 <= total) {
-    const wrap2 = await makePage(num + 1);
-    wrap2.style.marginLeft = '8px';
-    // side by side
-    viewer.style.flexDirection = 'row';
-    viewer.style.alignItems = 'flex-start';
-    viewer.style.justifyContent = 'center';
-    viewer.appendChild(wrap2);
+  if (dualPage && !isMobile()) {
+    await renderCanvas(num, wrap);
+    if (num + 1 <= totalPages) await renderCanvas(num + 1, wrap);
   } else {
-    viewer.style.flexDirection = 'column';
-    viewer.style.alignItems = 'center';
-    viewer.style.justifyContent = '';
+    await renderCanvas(num, wrap);
   }
-  viewer.scrollTo({ top: 0 });
+
+  scroll.scrollTo({ top: 0, behavior: 'smooth' });
   rendering = false;
-  if (renderQ !== null) { const n = renderQ; renderQ = null; renderSingle(n); }
+  if (renderQueue !== null) { const next = renderQueue; renderQueue = null; renderPage(next); }
 }
 
-async function makePage(num) {
-  const page = await pdf.getPage(num);
-  const vp   = page.getViewport({ scale });
-  const wrap = document.createElement('div');
-  wrap.className = 'pw'; wrap.dataset.p = num;
-  wrap.style.width  = vp.width  + 'px';
-  wrap.style.height = vp.height + 'px';
+function isMobile() { return window.innerWidth < 768; }
+
+async function renderCanvas(num, wrap) {
+  const page = await pdfDoc.getPage(num);
+  const viewport = page.getViewport({ scale });
+  const div = document.createElement('div');
+  div.className = 'canvas-wrap'; div.dataset.pageNum = num;
   const canvas = document.createElement('canvas');
-  canvas.width  = vp.width;
-  canvas.height = vp.height;
-  wrap.appendChild(canvas);
-  await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
-  // cache text for search
-  if (!textCache[num]) {
+  canvas.width = viewport.width; canvas.height = viewport.height;
+  div.style.width = viewport.width + 'px'; div.style.height = viewport.height + 'px';
+  div.appendChild(canvas); wrap.appendChild(div);
+  await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+  if (!pageTextCache[num]) {
     const tc = await page.getTextContent();
-    textCache[num] = tc.items;
+    pageTextCache[num] = { items: tc.items, viewport };
   }
-  return wrap;
 }
 
-/* ── SCROLL → update page indicator ── */
-viewer.addEventListener('scroll', () => {
-  if (pageMode) return;
-  const st = viewer.scrollTop, vh = viewer.clientHeight;
-  let best = null, bestV = -1;
-  viewer.querySelectorAll('.pw').forEach(w => {
-    const v = Math.min(w.offsetTop + w.offsetHeight, st + vh) - Math.max(w.offsetTop, st);
-    if (v > bestV) { bestV = v; best = w; }
-  });
-  if (best) { const p = +best.dataset.p; if (p !== curPage) { curPage = p; updateNav(); } }
-}, { passive: true });
-
-/* ── NAV UPDATE ── */
 function updateNav() {
-  document.getElementById('pg-input').value = curPage;
-  const lbl = (pageMode && dual && curPage + 1 <= total)
-    ? curPage + '–' + (curPage + 1) : curPage;
-  document.getElementById('pg-info').textContent = lbl + ' / ' + total;
-  // bottom buttons only enabled in page mode
-  document.getElementById('nb-prev').disabled  = !pageMode || curPage <= 1;
-  document.getElementById('nb-first').disabled = !pageMode || curPage <= 1;
-  document.getElementById('nb-next').disabled  = !pageMode || (dual ? curPage + 2 > total : curPage >= total);
-  document.getElementById('nb-last').disabled  = !pageMode || curPage >= total;
+  document.getElementById('page-input').value = currentPage;
+  const label = dualPage && !isMobile() ? `${currentPage}–${Math.min(currentPage+1,totalPages)}` : currentPage;
+  document.getElementById('top-page-info').textContent = `${label}/${totalPages}`;
+  document.getElementById('btn-prev').disabled = currentPage <= 1;
+  document.getElementById('btn-first').disabled = currentPage <= 1;
+  const atEnd = dualPage && !isMobile() ? currentPage+2 > totalPages : currentPage >= totalPages;
+  document.getElementById('btn-next').disabled = atEnd;
+  document.getElementById('btn-last').disabled = currentPage >= totalPages;
+  document.getElementById('zoom-input').value = Math.round(scale * 100);
 }
 
-/* ── MODE TOGGLE ── */
-function toggleMode() {
-  pageMode = !pageMode;
-  const btn = document.getElementById('btn-mode');
-  if (pageMode) {
-    btn.textContent = '↕ Scroll'; btn.classList.add('on');
-    viewer.style.flexDirection = dual ? 'row' : 'column';
-    viewer.style.alignItems = dual ? 'flex-start' : 'center';
-    renderSingle(curPage);
-  } else {
-    btn.textContent = '📄 Page'; btn.classList.remove('on');
-    const p = curPage;
-    viewer.style.flexDirection = 'column';
-    viewer.style.alignItems = 'center';
-    viewer.style.justifyContent = '';
-    renderAll().then(() => {
-      const el = viewer.querySelector('[data-p="' + p + '"]');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  }
-}
+// ── NAV ──
+function goPrev() { if (currentPage > 1) renderPage(dualPage && !isMobile() ? Math.max(1,currentPage-2) : currentPage-1); }
+function goNext() { const n = dualPage && !isMobile() ? currentPage+2 : currentPage+1; if(n<=totalPages) renderPage(n); }
+function goFirst() { renderPage(1); }
+function goLast() { renderPage(totalPages); }
+function goToPage(n) { renderPage(Math.max(1, Math.min(totalPages, parseInt(n)||1))); }
 
-/* ── DUAL TOGGLE ── */
-function toggleDual() {
-  dual = !dual;
-  const btn = document.getElementById('btn-dual');
-  btn.classList.toggle('on', dual);
-  btn.textContent = dual ? '▣ Single' : '⊞ Dual';
-  if (pageMode) {
-    if (dual && curPage % 2 === 0) curPage = Math.max(1, curPage - 1);
-    renderSingle(curPage);
-  }
+// ── ZOOM ──
+function applyZoom(val) {
+  let pct = Math.max(25, Math.min(300, parseInt(val)||100));
+  document.getElementById('zoom-input').value = pct;
+  scale = pct / 100;
+  renderPage(currentPage);
 }
+function zoomIn() { applyZoom(Math.round(scale*100) + 10); }
+function zoomOut() { applyZoom(Math.round(scale*100) - 10); }
+function fitWidth() {
+  const availW = window.innerWidth - (dualPage && !isMobile() ? 80 : 24);
+  applyZoom(Math.round((availW / 612) * 100));
+}
+function fitPage() { applyZoom(100); }
 
-/* ── PAGE NAV ── */
-function goFirst() { if (pageMode) renderSingle(1); }
-function goLast()  { if (pageMode) renderSingle(total); }
-function goPrev()  {
-  if (!pageMode) return;
-  renderSingle(Math.max(1, dual ? curPage - 2 : curPage - 1));
-}
-function goNext()  {
-  if (!pageMode) return;
-  const n = dual ? curPage + 2 : curPage + 1;
-  if (n <= total) renderSingle(n);
-}
-function goTo(n) {
-  n = Math.max(1, Math.min(total, n || 1));
-  if (pageMode) { renderSingle(n); }
-  else {
-    const el = viewer.querySelector('[data-p="' + n + '"]');
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-}
-
-/* ── ZOOM ── */
-function adjZoom(delta) {
-  scale = Math.max(0.3, Math.min(2.5, Math.round((scale + delta) * 100) / 100));
-  applyScale();
-}
-function sliderZoom(val) {
-  scale = val / 100;
-  applyScale();
-}
-function fitDefault() {
-  scale = Math.min(1.4, (window.innerWidth - 16) / 612);
-  applyScale();
-}
-function applyScale() {
-  updateSlider();
-  textCache = {}; // invalidate text cache (scale changed)
-  if (pageMode) renderSingle(curPage);
-  else renderAll();
-}
-function updateSlider() {
-  const pct = Math.round(scale * 100);
-  const sl = document.getElementById('zoom-slider');
-  sl.value = pct;
-  document.getElementById('zoom-label').textContent = pct + '%';
-  // update slider fill
-  const min = +sl.min, max = +sl.max;
-  const fill = ((pct - min) / (max - min)) * 100;
-  sl.style.background = `linear-gradient(to right, var(--cyan) ${fill}%, var(--border) ${fill}%)`;
-}
-
-/* ── FULLSCREEN ── */
-function toggleFS() {
-  const el = document.documentElement;
-  const btn = document.getElementById('btn-fs');
-  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-    (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
-    btn.textContent = '✕';
-  } else {
-    (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-    btn.textContent = '⛶';
-  }
-}
-document.addEventListener('fullscreenchange', () => {
-  if (!document.fullscreenElement) document.getElementById('btn-fs').textContent = '⛶';
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => { if (pdfDoc) fitWidth(); }, 300);
+});
+window.addEventListener('resize', () => {
+  if (pdfDoc && isMobile()) fitWidth();
 });
 
-/* ── SEARCH ── */
+// ── DUAL PAGE ──
+function toggleDualPage() {
+  dualPage = !dualPage;
+  document.getElementById('dual-btn').classList.toggle('active', dualPage);
+  document.getElementById('dual-btn').textContent = dualPage ? '▣ Single' : '⊞ Dual';
+  if (dualPage && currentPage % 2 === 0) currentPage = Math.max(1, currentPage-1);
+  renderPage(currentPage);
+}
+
+// ── FULLSCREEN ──
+function toggleFullscreen() {
+  const el = document.documentElement;
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    document.getElementById('fs-btn').textContent = '✕';
+  } else {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    document.getElementById('fs-btn').textContent = '⛶';
+  }
+}
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) document.getElementById('fs-btn').textContent = '⛶'; });
+document.addEventListener('webkitfullscreenchange', () => { if (!document.webkitFullscreenElement) document.getElementById('fs-btn').textContent = '⛶'; });
+
+// ── SEARCH ──
 function toggleSearch() {
   const bar = document.getElementById('search-bar');
-  const open = !bar.classList.contains('open');
-  bar.classList.toggle('open', open);
-  viewer.classList.toggle('search-open', open);
-  document.getElementById('btn-search').classList.toggle('on', open);
-  document.getElementById('results-panel').style.display = 'none';
-  if (open) document.getElementById('s-input').focus();
-  else { document.getElementById('s-input').value = ''; clearHL(); matches = []; }
+  const visible = bar.classList.toggle('visible');
+  document.getElementById('search-btn').classList.toggle('active', visible);
+  document.getElementById('viewer-scroll').classList.toggle('has-search', visible);
+  if (visible) document.getElementById('search-input').focus();
+  else closeSearch();
 }
 function closeSearch() {
-  document.getElementById('search-bar').classList.remove('open');
-  viewer.classList.remove('search-open');
-  document.getElementById('btn-search').classList.remove('on');
-  document.getElementById('results-panel').style.display = 'none';
-  document.getElementById('s-input').value = '';
-  document.getElementById('search-count').textContent = '';
-  clearHL(); matches = []; matchIdx = 0;
+  document.getElementById('search-bar').classList.remove('visible');
+  document.getElementById('search-btn').classList.remove('active');
+  document.getElementById('viewer-scroll').classList.remove('has-search');
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-info').textContent = '';
+  document.getElementById('search-results-panel').style.display = 'none';
+  document.getElementById('search-results-panel').innerHTML = '';
+  clearHighlights(); searchMatches = []; searchMatchIndex = 0;
 }
-
-async function runSearch(q) {
-  clearHL(); matches = [];
-  const panel = document.getElementById('results-panel');
-  if (!q || q.length < 2) { document.getElementById('search-count').textContent = ''; panel.style.display = 'none'; return; }
-  const lq = q.toLowerCase();
-  for (let p = 1; p <= total; p++) {
-    if (!textCache[p]) {
-      const pg = await pdf.getPage(p);
-      const tc = await pg.getTextContent();
-      textCache[p] = tc.items;
+async function doSearch(query) {
+  clearHighlights(); searchMatches = [];
+  const panel = document.getElementById('search-results-panel');
+  if (!query || query.length < 2) { document.getElementById('search-info').textContent = ''; panel.style.display = 'none'; panel.innerHTML = ''; return; }
+  document.getElementById('search-info').textContent = '…';
+  const lq = query.toLowerCase();
+  for (let p = 1; p <= totalPages; p++) {
+    if (!pageTextCache[p]) {
+      const page = await pdfDoc.getPage(p);
+      const tc = await page.getTextContent();
+      pageTextCache[p] = { items: tc.items, viewport: page.getViewport({ scale }) };
     }
-    if (textCache[p].map(i => i.str).join(' ').toLowerCase().includes(lq)) matches.push(p);
+    if (pageTextCache[p].items.map(i=>i.str).join(' ').toLowerCase().includes(lq)) searchMatches.push(p);
   }
-  document.getElementById('search-count').textContent = matches.length ? matches.length + ' pg' : 'None';
-  if (!matches.length) { panel.style.display = 'none'; return; }
-  panel.innerHTML = matches.map(pg => {
-    const txt = textCache[pg].map(i => i.str).join(' ');
-    const idx = txt.toLowerCase().indexOf(lq);
-    const snip = txt.substring(Math.max(0, idx - 12), idx + 32).trim();
-    return `<div class="ri" onclick="jumpTo(${pg})"><span class="rp">P.${pg}</span>${snip}…</div>`;
+  if (!searchMatches.length) { document.getElementById('search-info').textContent = 'Not found'; panel.style.display = 'none'; return; }
+  document.getElementById('search-info').textContent = `${searchMatches.length}pg`;
+  searchMatchIndex = 0;
+  panel.innerHTML = searchMatches.map(pg => {
+    const snippet = pageTextCache[pg].items.map(i=>i.str).join(' ');
+    const idx = snippet.toLowerCase().indexOf(lq);
+    const preview = snippet.substring(Math.max(0,idx-15), idx+35).trim();
+    return `<div class="result-item" onclick="jumpToMatch(${pg})"><span class="pg">P.${pg}</span>${preview}…</div>`;
   }).join('');
   panel.style.display = 'block';
-  matchIdx = 0; jumpTo(matches[0]);
+  jumpToMatch(searchMatches[0]);
 }
-
-function stepMatch(dir) {
-  if (!matches.length) return;
-  matchIdx = (matchIdx + dir + matches.length) % matches.length;
-  jumpTo(matches[matchIdx]);
-}
-
-function jumpTo(pg) {
-  if (pageMode) {
-    renderSingle(pg);
-    setTimeout(() => hlPage(pg, document.getElementById('s-input').value), 600);
-  } else {
-    const el = viewer.querySelector('[data-p="' + pg + '"]');
-    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); setTimeout(() => hlPage(pg, document.getElementById('s-input').value), 350); }
-  }
-}
-
-function hlPage(pnum, q) {
-  clearHL();
-  const wrap = viewer.querySelector('[data-p="' + pnum + '"]');
-  if (!wrap || !textCache[pnum]) return;
-  const lq = q.toLowerCase();
-  const canvas = wrap.querySelector('canvas');
+function jumpToMatch(pg) { goToPage(pg); setTimeout(() => highlightOnPage(pg, document.getElementById('search-input').value), 700); }
+function highlightOnPage(pageNum, query) {
+  clearHighlights();
+  const wrap = document.getElementById('viewer-wrap');
+  const pageDiv = wrap.querySelector(`[data-page-num="${pageNum}"]`);
+  if (!pageDiv || !pageTextCache[pageNum]) return;
+  const lq = query.toLowerCase();
+  const { items } = pageTextCache[pageNum];
+  const canvas = pageDiv.querySelector('canvas');
   const h = canvas ? canvas.height : 0;
-  textCache[pnum].forEach(item => {
+  items.forEach(item => {
     if (!item.str.toLowerCase().includes(lq)) return;
-    const d = document.createElement('div');
-    d.className = 'hl';
-    d.style.left   = (item.transform[4] * scale) + 'px';
-    d.style.top    = (h - item.transform[5] * scale - item.height * scale) + 'px';
-    d.style.width  = (item.width * scale) + 'px';
-    d.style.height = Math.max(item.height * scale, 10) + 'px';
-    wrap.appendChild(d);
+    const hl = document.createElement('div');
+    hl.className = 'highlight-overlay';
+    hl.style.left = (item.transform[4] * scale) + 'px';
+    hl.style.top = (h - item.transform[5] * scale - item.height * scale) + 'px';
+    hl.style.width = (item.width * scale) + 'px';
+    hl.style.height = Math.max(item.height * scale, 10) + 'px';
+    pageDiv.appendChild(hl);
   });
 }
-function clearHL() { document.querySelectorAll('.hl').forEach(e => e.remove()); }
+function clearHighlights() { document.querySelectorAll('.highlight-overlay').forEach(el => el.remove()); }
+function prevMatch() { if (!searchMatches.length) return; searchMatchIndex = (searchMatchIndex-1+searchMatches.length)%searchMatches.length; jumpToMatch(searchMatches[searchMatchIndex]); }
+function nextMatch() { if (!searchMatches.length) return; searchMatchIndex = (searchMatchIndex+1)%searchMatches.length; jumpToMatch(searchMatches[searchMatchIndex]); }
 
-/* ── KEYBOARD ── */
+// ── KEYBOARD ──
 document.addEventListener('keydown', e => {
-  const act = document.activeElement;
-  if (act && (act.id === 's-input' || act.id === 'pg-input')) return;
+  const active = document.activeElement;
+  if (active === document.getElementById('search-input') || active === document.getElementById('zoom-input') || active === document.getElementById('page-input')) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goNext();
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goPrev();
   if (e.key === 'Escape') closeSearch();
-  if (e.key === 'f') toggleFS();
-  if (pageMode) {
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goNext();
-    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   goPrev();
-  }
+  if (e.key === 'f') toggleFullscreen();
 });
 
-/* ── TOUCH SWIPE (page mode only) ── */
-let tx = 0, ty = 0;
-viewer.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
-viewer.addEventListener('touchend', e => {
-  if (!pageMode) return;
-  const dx = e.changedTouches[0].clientX - tx;
-  const dy = e.changedTouches[0].clientY - ty;
-  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 45) { dx < 0 ? goNext() : goPrev(); }
-}, { passive: true });
-
-/* ── LOGOUT ── */
-async function doLogout() {
-  sessionStorage.removeItem('vaultdocs_auth');
-  localStorage.removeItem('vaultdocs_session');
+// ── LOGOUT ──
+async function logout() {
   try {
-    const sb = window.supabase.createClient(SB_URL, SB_KEY);
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     await sb.auth.signOut();
   } catch(e) {}
-  window.location.replace('index.html');
+  window.location.href = 'index.html';
 }
 
-/* ── RESIZE ── */
-window.addEventListener('resize', () => {
-  // just re-fit to default width
-  if (pdf) fitDefault();
-});
+// ── AUTH — verify real Supabase session, not localStorage ──
+(async () => {
+  try {
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const { data: { session } } = await sb.auth.getSession();
 
-/* ── START ── */
-loadPDF();
+    if (!session) {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    const { data: profile } = await sb.from('profiles')
+      .select('approved')
+      .eq('id', session.user.id)
+      .single();
+
+    if (!profile?.approved) {
+      await sb.auth.signOut();
+      window.location.href = 'index.html';
+      return;
+    }
+
+    // Auth passed — load the PDF
+    loadPDF();
+  } catch(e) {
+    window.location.href = 'index.html';
+  }
+})();
 </script>
 </body>
 </html>
