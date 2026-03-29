@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <title>F(Orth) Part B — Study Notes</title>
@@ -95,7 +95,6 @@
     position: relative; flex-shrink: 0;
     box-shadow: 0 4px 32px rgba(0,0,0,0.8);
     border-radius: 4px; overflow: hidden; background: #fff;
-    transition: width 0.2s ease-out, height 0.2s ease-out;
   }
   .canvas-wrap canvas { display: block; width: 100%; height: 100%; }
 
@@ -301,11 +300,6 @@ document.addEventListener('keydown', e => {
   if (blocked.some(Boolean)) { e.preventDefault(); e.stopPropagation(); return false; }
 });
 
-// Prevent default pinch-zoom on iOS while allowing our custom pinch
-document.addEventListener('gesturestart', (e) => {
-  e.preventDefault();
-}, { passive: false });
-
 const dtWarning = document.getElementById('dt-warning');
 let devToolsOpen = false;
 setInterval(() => {
@@ -320,15 +314,14 @@ let pdfDoc = null, currentPage = 1, totalPages = 0;
 let scale = 1.0;
 let searchMatches = [], searchMatchIndex = 0, pageTextCache = {};
 let isRendering = false;
+let renderQueue = [];
 
 const scroll = document.getElementById('viewer-scroll');
-let lastScale = 1.0;
 
 scroll.addEventListener('scroll', () => {
   if (!isRendering) updateCurrentPageFromScroll();
 }, { passive: true });
 
-// Enable horizontal panning when zoomed in on mobile
 function updatePanAbility() {
   const isMobileView = window.innerWidth < 768;
   const isZoomedIn = scale > 1.1;
@@ -338,40 +331,6 @@ function updatePanAbility() {
     scroll.classList.remove('allow-pan-x');
   }
 }
-
-// Pinch-to-zoom handling
-let touchStartDistance = 0;
-let touchStartScale = 1.0;
-
-scroll.addEventListener('touchstart', (e) => {
-  if (e.touches.length === 2) {
-    const touch1 = e.touches[0];
-    const touch2 = e.touches[1];
-    const dx = touch2.clientX - touch1.clientX;
-    const dy = touch2.clientY - touch1.clientY;
-    touchStartDistance = Math.sqrt(dx * dx + dy * dy);
-    touchStartScale = scale;
-  }
-}, { passive: true });
-
-scroll.addEventListener('touchmove', (e) => {
-  if (e.touches.length === 2 && touchStartDistance > 0) {
-    e.preventDefault();
-    const touch1 = e.touches[0];
-    const touch2 = e.touches[1];
-    const dx = touch2.clientX - touch1.clientX;
-    const dy = touch2.clientY - touch1.clientY;
-    const currentDistance = Math.sqrt(dx * dx + dy * dy);
-    const ratio = currentDistance / touchStartDistance;
-    const newScale = touchStartScale * ratio;
-    applyZoom(newScale);
-  }
-}, { passive: false });
-
-scroll.addEventListener('touchend', () => {
-  touchStartDistance = 0;
-  touchStartScale = 1.0;
-}, { passive: true });
 
 function updateCurrentPageFromScroll() {
   const wraps = scroll.querySelectorAll('.canvas-wrap');
@@ -403,7 +362,6 @@ async function loadPDF() {
     document.getElementById('page-total').textContent = '/ ' + totalPages;
     document.getElementById('page-input').max = totalPages;
     
-    // Initial scale
     if (window.innerWidth < 768) {
       const availW = scroll.clientWidth - 32;
       scale = Math.round((availW / 612) * 100) / 100;
@@ -423,7 +381,7 @@ async function initializePageContainers() {
   scroll.innerHTML = '';
   for (let p = 1; p <= totalPages; p++) {
     const page = await pdfDoc.getPage(p);
-    const viewport = page.getViewport({ scale: 1.0 }); // Base size
+    const viewport = page.getViewport({ scale: 1.0 });
     
     const container = document.createElement('div');
     container.className = 'page-container';
@@ -434,8 +392,7 @@ async function initializePageContainers() {
     wrap.dataset.pageNum = p;
     wrap.style.width = (viewport.width * scale) + 'px';
     wrap.style.height = (viewport.height * scale) + 'px';
-    wrap.style.maxWidth = '100%';
-    wrap.style.margin = '0 auto';
+    wrap.style.maxWidth = 'none'; // Allow horizontal panning
     
     const canvas = document.createElement('canvas');
     wrap.appendChild(canvas);
@@ -456,10 +413,13 @@ async function renderVisiblePages() {
   if (isRendering) return;
   isRendering = true;
   
-  // For simplicity in this fix, we render all pages but with better stability
-  // In a production app, we'd only render pages in viewport
+  // Render pages sequentially to avoid memory crashes
   for (let p = 1; p <= totalPages; p++) {
-    await renderPage(p);
+    try {
+      await renderPage(num = p);
+    } catch (e) {
+      console.error('Render error on page ' + p, e);
+    }
   }
   
   isRendering = false;
@@ -467,6 +427,7 @@ async function renderVisiblePages() {
 
 async function renderPage(num) {
   const container = document.getElementById('page-container-' + num);
+  if (!container) return;
   const wrap = container.querySelector('.canvas-wrap');
   const canvas = wrap.querySelector('canvas');
   
@@ -476,13 +437,15 @@ async function renderPage(num) {
   wrap.style.width = viewport.width + 'px';
   wrap.style.height = viewport.height + 'px';
   
-  canvas.width = viewport.width * window.devicePixelRatio;
-  canvas.height = viewport.height * window.devicePixelRatio;
+  // Limit resolution to prevent crashes on mobile
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = viewport.width * dpr;
+  canvas.height = viewport.height * dpr;
   
   const ctx = canvas.getContext('2d');
   const renderContext = {
     canvasContext: ctx,
-    viewport: page.getViewport({ scale: scale * window.devicePixelRatio })
+    viewport: page.getViewport({ scale: scale * dpr })
   };
   
   await page.render(renderContext).promise;
@@ -516,19 +479,17 @@ function goToPage(n) { scrollToPage(parseInt(n) || 1); }
 
 async function applyZoom(newScale) {
   newScale = Math.max(0.25, Math.min(3.0, newScale));
-  if (newScale === scale) return;
+  if (Math.abs(newScale - scale) < 0.01) return;
   
   const oldScale = scale;
   scale = newScale;
   
-  // Record current scroll position relative to current page
   const container = document.getElementById('page-container-' + currentPage);
   const relativeScroll = scroll.scrollTop - container.offsetTop;
   const scrollRatio = relativeScroll / (oldScale);
 
   document.getElementById('zoom-label').textContent = Math.round(scale * 100) + '%';
   
-  // Update all container sizes immediately to prevent layout shifts
   for (let p = 1; p <= totalPages; p++) {
     const c = document.getElementById('page-container-' + p);
     const w = c.querySelector('.canvas-wrap');
@@ -538,13 +499,8 @@ async function applyZoom(newScale) {
     w.style.height = vp.height + 'px';
   }
   
-  // Restore scroll position
   scroll.scrollTop = container.offsetTop + (scrollRatio * scale);
-  
-  // Update pan ability
   updatePanAbility();
-  
-  // Re-render
   renderVisiblePages();
 }
 
@@ -582,7 +538,6 @@ function closeSearch() {
   searchMatchIndex = 0;
 }
 
-// Close search results when clicking outside
 document.addEventListener('click', (e) => {
   const searchBar = document.getElementById('search-bar');
   const searchPanel = document.getElementById('search-results-panel');
@@ -641,8 +596,8 @@ function highlightOnPage(pageNum, query) {
   const lq = query.toLowerCase();
   const { items } = pageTextCache[pageNum];
   const canvas = wrap.querySelector('canvas');
-  const h = canvas.height / window.devicePixelRatio;
-  const w = canvas.width / window.devicePixelRatio;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const h = canvas.height / dpr;
   
   items.forEach(item => {
     if (!item.str.toLowerCase().includes(lq)) return;
