@@ -699,25 +699,33 @@ document.addEventListener('keydown', e => {
   if (e.key === '-') zoomOut();
 });
 
+// ── SUPABASE CLIENT (single instance) ──
+const SUPA_URL = 'https://djbiatgxjmvwfcimofjt.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqYmlhdGd4am12d2ZjaW1vZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NjU1MjcsImV4cCI6MjA5MDI0MTUyN30.m_gBey_jA13hVdjttSKtFMcrQO-dGokq1Fpu2XriLp0';
+const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
 // ── LOGOUT ──
 async function logout() {
   localStorage.removeItem('vaultdocs_session');
-  try {
-    const sb = window.supabase.createClient(
-      'https://djbiatgxjmvwfcimofjt.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqYmlhdGd4am12d2ZjaW1vZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NjU1MjcsImV4cCI6MjA5MDI0MTUyN30.m_gBey_jA13hVdjttSKtFMcrQO-dGokq1Fpu2XriLp0'
-    );
-    await sb.auth.signOut();
-  } catch(e) {}
+  try { await sb.auth.signOut(); } catch(e) {}
   window.location.href = 'index.html';
 }
 
-// ── AUTH ──
-if (!localStorage.getItem('vaultdocs_session')) {
+// ── AUTH — single async check, no redirect loops ──
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    const { data: profile } = await sb.from('profiles').select('approved').eq('id', session.user.id).single();
+    if (profile?.approved) {
+      localStorage.setItem('vaultdocs_session', session.access_token);
+      loadPDF();
+      return;
+    }
+    await sb.auth.signOut();
+  }
+  localStorage.removeItem('vaultdocs_session');
   window.location.href = 'index.html';
-} else {
-  loadPDF();
-}
+})();
 </script>
 </body>
 </html>
