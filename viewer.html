@@ -13,8 +13,7 @@
   --navy: #0f1535; --navy-mid: #1a2550;
   --cyan: #00c2e0; --white: #f5f7ff;
   --muted: #8a9bc4; --border: rgba(0,194,224,0.2);
-  --topbar-h: 48px; --toolbar-h: 44px;
-  --nav-h: 56px;
+  --topbar-h: 48px; --toolbar-h: 44px; --nav-h: 56px;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; overflow: hidden; }
@@ -24,7 +23,6 @@ body {
   user-select: none; -webkit-user-select: none;
   touch-action: pan-x pan-y;
 }
-/* TOPBAR */
 .topbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   height: var(--topbar-h);
@@ -36,8 +34,7 @@ body {
 .topbar-brand {
   font-size: 0.7rem; font-weight: 700; color: var(--cyan);
   letter-spacing: 0.08em; text-transform: uppercase;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  max-width: 55vw;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55vw;
 }
 .topbar-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
 .page-info { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
@@ -48,7 +45,6 @@ body {
   white-space: nowrap; -webkit-tap-highlight-color: transparent;
 }
 .icon-btn:hover, .icon-btn:active { border-color: var(--cyan); color: var(--cyan); }
-/* TOOLBAR */
 .toolbar {
   position: fixed; top: var(--topbar-h); left: 0; right: 0; z-index: 99;
   height: var(--toolbar-h);
@@ -69,18 +65,15 @@ body {
 .tb-btn:active { background: rgba(0,194,224,0.25); border-color: var(--cyan); }
 .tb-btn.active { background: rgba(0,194,224,0.2); border-color: var(--cyan); color: var(--cyan); }
 .tb-divider { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
-/* ZOOM */
 .zoom-wrap { display: flex; align-items: center; gap: 0.2rem; flex-shrink: 0; }
 .zoom-input {
   width: 46px; text-align: center;
   background: rgba(15,21,53,0.8); border: 1px solid var(--border);
   border-radius: 4px; color: var(--white); font-size: 0.72rem;
-  padding: 0.25rem; outline: none; font-family: inherit;
-  min-height: 28px;
+  padding: 0.25rem; outline: none; font-family: inherit; min-height: 28px;
 }
 .zoom-input:focus { border-color: var(--cyan); }
 .zoom-pct { font-size: 0.68rem; color: var(--muted); }
-/* SEARCH BAR */
 .search-bar {
   display: none; position: fixed;
   top: calc(var(--topbar-h) + var(--toolbar-h));
@@ -92,8 +85,7 @@ body {
 .search-input {
   flex: 1; background: rgba(26,37,80,0.9); border: 1px solid var(--cyan);
   border-radius: 6px; padding: 0.4rem 0.8rem; color: var(--white);
-  font-size: 0.82rem; outline: none; font-family: inherit;
-  min-height: 36px;
+  font-size: 0.82rem; outline: none; font-family: inherit; min-height: 36px;
 }
 .search-info { font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
 .search-nav-btn {
@@ -107,25 +99,20 @@ body {
   cursor: pointer; font-size: 1.1rem; padding: 0.1rem 0.3rem;
   min-height: 32px; min-width: 32px;
 }
-/* VIEWER SCROLL AREA */
 #viewer-scroll {
   position: fixed;
   top: calc(var(--topbar-h) + var(--toolbar-h));
-  left: 0; right: 0;
-  bottom: var(--nav-h);
+  left: 0; right: 0; bottom: var(--nav-h);
   overflow-y: auto; overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   display: flex; flex-direction: column; align-items: center;
   padding: 1rem 0.5rem;
   background: var(--navy);
 }
-#viewer-scroll.has-search {
-  top: calc(var(--topbar-h) + var(--toolbar-h) + 52px);
-}
+#viewer-scroll.has-search { top: calc(var(--topbar-h) + var(--toolbar-h) + 52px); }
 #viewer-wrap {
   display: flex; flex-direction: row; justify-content: center;
-  align-items: flex-start; gap: 8px; width: 100%;
-  min-height: 100%;
+  align-items: flex-start; gap: 8px; width: 100%; min-height: 100%;
 }
 #loading {
   display: flex; flex-direction: column; align-items: center;
@@ -156,14 +143,12 @@ body {
   position: absolute; background: rgba(255,220,0,0.35);
   border: 1px solid rgba(255,200,0,0.6); pointer-events: none; z-index: 11; border-radius: 2px;
 }
-/* PAGE NAV — fixed bottom bar */
 .page-nav {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
   height: var(--nav-h);
   display: flex; align-items: center; justify-content: center; gap: 0.8rem;
   background: rgba(15,21,53,0.97); backdrop-filter: blur(12px);
-  border-top: 1px solid var(--border);
-  padding: 0 1rem;
+  border-top: 1px solid var(--border); padding: 0 1rem;
 }
 .nav-btn {
   background: rgba(0,194,224,0.08); border: 1px solid var(--border);
@@ -182,7 +167,6 @@ body {
 }
 .page-input:focus { border-color: var(--cyan); }
 .page-total { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
-/* SEARCH RESULTS */
 #search-results-panel {
   display: none; position: fixed;
   top: calc(var(--topbar-h) + var(--toolbar-h) + 52px);
@@ -198,7 +182,6 @@ body {
 }
 #search-results-panel .result-item:active { background: rgba(0,194,224,0.1); }
 #search-results-panel .result-item .pg { color: var(--cyan); font-weight: 700; margin-right: 0.3rem; }
-/* DEVTOOLS */
 #dt-warning {
   display: none; position: fixed; inset: 0; z-index: 9999;
   background: var(--navy); flex-direction: column; align-items: center;
@@ -206,7 +189,6 @@ body {
 }
 #dt-warning h2 { font-size: 1.4rem; color: var(--cyan); }
 #dt-warning p { color: var(--muted); max-width: 320px; line-height: 1.7; font-size: 0.9rem; }
-/* SWIPE HINT */
 .swipe-hint {
   position: fixed; bottom: calc(var(--nav-h) + 8px); left: 50%;
   transform: translateX(-50%);
@@ -215,7 +197,6 @@ body {
   animation: fadeHint 3s ease forwards;
 }
 @keyframes fadeHint { 0%,70%{opacity:1} 100%{opacity:0} }
-/* RESPONSIVE */
 @media (max-width: 480px) {
   .topbar-brand { font-size: 0.62rem; }
   .tb-btn { font-size: 0.68rem; padding: 0.25rem 0.5rem; }
@@ -235,7 +216,6 @@ body {
   <p>Developer tools detected. Please close DevTools to continue reading.</p>
 </div>
 
-<!-- TOPBAR -->
 <div class="topbar">
   <span class="topbar-brand">F(Orth) Part B · Easy Study Notes</span>
   <div class="topbar-right">
@@ -245,7 +225,6 @@ body {
   </div>
 </div>
 
-<!-- TOOLBAR -->
 <div class="toolbar">
   <button class="tb-btn" onclick="zoomOut()">−</button>
   <div class="zoom-wrap">
@@ -263,7 +242,6 @@ body {
   <button class="tb-btn" id="search-btn" onclick="toggleSearch()">🔍</button>
 </div>
 
-<!-- SEARCH -->
 <div class="search-bar" id="search-bar">
   <input class="search-input" id="search-input" placeholder="Search document…" oninput="doSearch(this.value)">
   <span class="search-info" id="search-info"></span>
@@ -273,7 +251,6 @@ body {
 </div>
 <div id="search-results-panel"></div>
 
-<!-- SCROLL AREA -->
 <div id="viewer-scroll">
   <div id="viewer-wrap">
     <div id="loading">
@@ -283,7 +260,6 @@ body {
   </div>
 </div>
 
-<!-- PAGE NAV -->
 <div class="page-nav">
   <button class="nav-btn" id="btn-first" onclick="goFirst()">⟪</button>
   <button class="nav-btn" id="btn-prev" onclick="goPrev()">‹</button>
@@ -295,7 +271,6 @@ body {
 </div>
 
 <script>
-// ── CONSTANTS ──
 const SUPABASE_URL = 'https://djbiatgxjmvwfcimofjt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqYmlhdGd4am12d2ZjaW1vZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NjU1MjcsImV4cCI6MjA5MDI0MTUyN30.m_gBey_jA13hVdjttSKtFMcrQO-dGokq1Fpu2XriLp0';
 
@@ -356,10 +331,8 @@ async function loadPDF() {
     totalPages = pdfDoc.numPages;
     document.getElementById('page-total').textContent = '/ ' + totalPages;
     document.getElementById('loading').style.display = 'none';
-
     if (window.innerWidth < 768) fitWidth();
     else renderPage(1);
-
     if ('ontouchstart' in window) {
       const hint = document.createElement('div');
       hint.className = 'swipe-hint';
@@ -368,7 +341,7 @@ async function loadPDF() {
       setTimeout(() => hint.remove(), 3500);
     }
   } catch(e) {
-    document.querySelector('.load-text').textContent = 'Error: ' + e.message;
+    document.querySelector('.load-text').textContent = 'Error loading PDF: ' + e.message;
   }
 }
 
@@ -378,14 +351,12 @@ async function renderPage(num) {
   rendering = true; currentPage = num; updateNav();
   const wrap = document.getElementById('viewer-wrap');
   wrap.querySelectorAll('.canvas-wrap').forEach(el => el.remove());
-
   if (dualPage && !isMobile()) {
     await renderCanvas(num, wrap);
     if (num + 1 <= totalPages) await renderCanvas(num + 1, wrap);
   } else {
     await renderCanvas(num, wrap);
   }
-
   scroll.scrollTo({ top: 0, behavior: 'smooth' });
   rendering = false;
   if (renderQueue !== null) { const next = renderQueue; renderQueue = null; renderPage(next); }
@@ -421,19 +392,16 @@ function updateNav() {
   document.getElementById('zoom-input').value = Math.round(scale * 100);
 }
 
-// ── NAV ──
 function goPrev() { if (currentPage > 1) renderPage(dualPage && !isMobile() ? Math.max(1,currentPage-2) : currentPage-1); }
 function goNext() { const n = dualPage && !isMobile() ? currentPage+2 : currentPage+1; if(n<=totalPages) renderPage(n); }
 function goFirst() { renderPage(1); }
 function goLast() { renderPage(totalPages); }
 function goToPage(n) { renderPage(Math.max(1, Math.min(totalPages, parseInt(n)||1))); }
 
-// ── ZOOM ──
 function applyZoom(val) {
   let pct = Math.max(25, Math.min(300, parseInt(val)||100));
   document.getElementById('zoom-input').value = pct;
-  scale = pct / 100;
-  renderPage(currentPage);
+  scale = pct / 100; renderPage(currentPage);
 }
 function zoomIn() { applyZoom(Math.round(scale*100) + 10); }
 function zoomOut() { applyZoom(Math.round(scale*100) - 10); }
@@ -443,14 +411,9 @@ function fitWidth() {
 }
 function fitPage() { applyZoom(100); }
 
-window.addEventListener('orientationchange', () => {
-  setTimeout(() => { if (pdfDoc) fitWidth(); }, 300);
-});
-window.addEventListener('resize', () => {
-  if (pdfDoc && isMobile()) fitWidth();
-});
+window.addEventListener('orientationchange', () => { setTimeout(() => { if (pdfDoc) fitWidth(); }, 300); });
+window.addEventListener('resize', () => { if (pdfDoc && isMobile()) fitWidth(); });
 
-// ── DUAL PAGE ──
 function toggleDualPage() {
   dualPage = !dualPage;
   document.getElementById('dual-btn').classList.toggle('active', dualPage);
@@ -459,7 +422,6 @@ function toggleDualPage() {
   renderPage(currentPage);
 }
 
-// ── FULLSCREEN ──
 function toggleFullscreen() {
   const el = document.documentElement;
   if (!document.fullscreenElement && !document.webkitFullscreenElement) {
@@ -475,7 +437,6 @@ function toggleFullscreen() {
 document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) document.getElementById('fs-btn').textContent = '⛶'; });
 document.addEventListener('webkitfullscreenchange', () => { if (!document.webkitFullscreenElement) document.getElementById('fs-btn').textContent = '⛶'; });
 
-// ── SEARCH ──
 function toggleSearch() {
   const bar = document.getElementById('search-bar');
   const visible = bar.classList.toggle('visible');
@@ -545,7 +506,6 @@ function clearHighlights() { document.querySelectorAll('.highlight-overlay').for
 function prevMatch() { if (!searchMatches.length) return; searchMatchIndex = (searchMatchIndex-1+searchMatches.length)%searchMatches.length; jumpToMatch(searchMatches[searchMatchIndex]); }
 function nextMatch() { if (!searchMatches.length) return; searchMatchIndex = (searchMatchIndex+1)%searchMatches.length; jumpToMatch(searchMatches[searchMatchIndex]); }
 
-// ── KEYBOARD ──
 document.addEventListener('keydown', e => {
   const active = document.activeElement;
   if (active === document.getElementById('search-input') || active === document.getElementById('zoom-input') || active === document.getElementById('page-input')) return;
@@ -561,35 +521,38 @@ async function logout() {
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     await sb.auth.signOut();
   } catch(e) {}
-  window.location.href = 'index.html';
+  window.location.replace('index.html');
 }
 
-// ── AUTH — verify real Supabase session, not localStorage ──
+// ── AUTH ──
+// Use getSession() once — NO onAuthStateChange listener here.
+// onAuthStateChange would fire SIGNED_IN when the page loads (Supabase restores
+// the session from storage), then SIGNED_OUT if we call signOut anywhere, 
+// creating a ping-pong redirect loop between the two pages.
 (async () => {
   try {
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const { data: { session } } = await sb.auth.getSession();
 
     if (!session) {
-      window.location.href = 'index.html';
+      window.location.replace('index.html');
       return;
     }
 
-    const { data: profile } = await sb.from('profiles')
-      .select('approved')
-      .eq('id', session.user.id)
-      .single();
+    const { data: profile } = await sb
+      .from('profiles').select('approved').eq('id', session.user.id).single();
 
     if (!profile?.approved) {
       await sb.auth.signOut();
-      window.location.href = 'index.html';
+      window.location.replace('index.html');
       return;
     }
 
-    // Auth passed — load the PDF
+    // ✅ Auth verified — start the PDF viewer
     loadPDF();
+
   } catch(e) {
-    window.location.href = 'index.html';
+    window.location.replace('index.html');
   }
 })();
 </script>
