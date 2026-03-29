@@ -198,6 +198,39 @@
     .hide-sm { display: none !important; }
     #bar { gap: 4px; padding: 0 6px; }
   }
+
+  /* ── SEARCH RESULTS DROPDOWN ── */
+  #s-results {
+    display: none;
+    position: fixed;
+    bottom: calc(var(--bar-h) + 62px);
+    left: 50%; transform: translateX(-50%);
+    z-index: 201;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: min(380px, 90vw);
+    max-height: 220px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  #s-results::-webkit-scrollbar { display: none; }
+  #s-results.on { display: block; }
+  .sr-item {
+    padding: 9px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    display: flex; gap: 8px; align-items: baseline;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.1s;
+  }
+  .sr-item:last-child { border-bottom: none; }
+  .sr-item:hover, .sr-item:active { background: rgba(0,153,187,0.08); color: var(--text); }
+  .sr-pg { color: var(--accent); font-weight: 700; font-size: 11px; white-space: nowrap; }
+  .sr-snip { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -225,6 +258,8 @@
   <button class="sx" onclick="closeSearch()">✕</button>
 </div>
 
+
+<div id="s-results"></div>
 <div id="bar">
   <!-- Page nav -->
   <button class="btn" id="btn-prev" onclick="goPrev()">
@@ -265,7 +300,7 @@
   </button>
 
   <!-- Fullscreen -->
-  <button class="btn hide-sm" onclick="toggleFS()">
+  <button class="btn" id="fs-btn" onclick="toggleFS()">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
   </button>
 
@@ -576,6 +611,8 @@ function toggleSearch() {
 function closeSearch() {
   document.getElementById('sbox').classList.remove('on');
   document.getElementById('s-btn').classList.remove('on');
+  document.getElementById('s-results').classList.remove('on');
+  document.getElementById('s-results').innerHTML = '';
   document.getElementById('si').value = '';
   document.getElementById('slbl').textContent = '';
   clearHl();
@@ -584,7 +621,13 @@ function closeSearch() {
 
 async function onSearch(q) {
   clearHl(); sMatches = [];
-  if (!q || q.length < 2) { document.getElementById('slbl').textContent = ''; return; }
+  const resList = document.getElementById('s-results');
+  if (!q || q.length < 2) {
+    document.getElementById('slbl').textContent = '';
+    resList.classList.remove('on');
+    resList.innerHTML = '';
+    return;
+  }
   document.getElementById('slbl').textContent = '…';
   const lq = q.toLowerCase();
   for (let p = 1; p <= totalPages; p++) {
@@ -596,10 +639,30 @@ async function onSearch(q) {
     }
     if (textCache[p].items.some(it => it.str.toLowerCase().includes(lq))) sMatches.push(p);
   }
-  if (!sMatches.length) { document.getElementById('slbl').textContent = 'Not found'; return; }
+  if (!sMatches.length) {
+    document.getElementById('slbl').textContent = 'Not found';
+    resList.classList.remove('on'); resList.innerHTML = '';
+    return;
+  }
   document.getElementById('slbl').textContent = sMatches.length + (sMatches.length === 1 ? ' page' : ' pages');
+
+  // Build dropdown
+  resList.innerHTML = sMatches.map((pg, i) => {
+    const txt = textCache[pg].items.map(it => it.str).join(' ');
+    const idx = txt.toLowerCase().indexOf(lq);
+    const snip = idx >= 0 ? txt.substring(Math.max(0, idx - 20), idx + 40).trim() : txt.substring(0, 60).trim();
+    return '<div class="sr-item" onclick="pickResult('+i+')">'+'<span class="sr-pg">P.'+pg+'</span>'+'<span class="sr-snip">'+snip+'…</span></div>';
+  }).join('');
+  resList.classList.add('on');
+
   sIdx = 0;
   jumpMatch();
+}
+
+function pickResult(i) {
+  sIdx = i;
+  jumpMatch();
+  document.getElementById('s-results').classList.remove('on');
 }
 
 function jumpMatch() {
@@ -654,6 +717,19 @@ document.addEventListener('keydown', e => {
   if (e.key === 'f') toggleFS();
   if (e.key === '+' || e.key === '=') zoom(0.1);
   if (e.key === '-') zoom(-0.1);
+});
+
+
+// ── CLOSE SEARCH RESULTS ON OUTSIDE CLICK/TOUCH ──
+document.addEventListener('pointerdown', e => {
+  const sbox = document.getElementById('sbox');
+  const resList = document.getElementById('s-results');
+  const sBtn = document.getElementById('s-btn');
+  if (!sbox.contains(e.target) && !resList.contains(e.target) && !sBtn.contains(e.target)) {
+    resList.classList.remove('on');
+    // If search box is open but user tapped away, close the whole search
+    if (sbox.classList.contains('on')) closeSearch();
+  }
 });
 
 // ── AUTH ──
