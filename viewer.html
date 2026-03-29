@@ -85,16 +85,7 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* watermark */
-  .pg-wrap::after {
-    content: 'F(ORTH) · ORTHO TIMES';
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1rem; font-weight: 700; letter-spacing: 0.2em;
-    color: rgba(0,194,224,0.04); pointer-events: none;
-    white-space: nowrap; transform: rotate(-30deg) scale(1.6);
-    text-transform: uppercase; z-index: 2;
-  }
+
 
   /* ── BOTTOM BAR ── */
   #bar {
@@ -426,11 +417,15 @@ async function renderPage(pgNum) {
     const page = await pdf.getPage(pgNum);
     const vp   = page.getViewport({ scale: baseScale });
 
+    const dpr = window.devicePixelRatio || 1;
     const canvas = document.createElement('canvas');
-    canvas.width  = vp.width;
-    canvas.height = vp.height;
-
-    await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+    canvas.width  = Math.floor(vp.width  * dpr);
+    canvas.height = Math.floor(vp.height * dpr);
+    canvas.style.width  = vp.width  + 'px';
+    canvas.style.height = vp.height + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
 
     // cache text
     if (!textCache[pgNum]) {
