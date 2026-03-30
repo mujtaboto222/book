@@ -244,11 +244,12 @@ body {
 /* Mobile: slightly shorter bar, tighter gaps */
 @media (max-width: 767px) {
   :root { --bar-h: 54px; }
-  #bottom-bar { gap: 4px; padding: 0 6px; }
-  .b-btn { padding: 0 8px; height: 34px; font-size: 0.68rem; }
-  .b-btn.nav { width: 34px; font-size: 1rem; }
-  .page-input-inline { width: 34px; height: 30px; font-size: 0.72rem; }
-  .page-display { min-width: 36px; font-size: 0.68rem; }
+  #bottom-bar { gap: 2px; padding: 0 4px; }
+  .b-btn { padding: 0 6px; height: 34px; font-size: 0.68rem; }
+  .b-btn.nav { width: 30px; font-size: 1rem; padding: 0; }
+  .page-input-inline { width: 30px; height: 30px; font-size: 0.68rem; }
+  .page-display { min-width: 30px; font-size: 0.65rem; }
+  .b-divider { display: none; }
   /* Hide dual page button on mobile */
   #dual-btn, #dual-divider { display: none; }
 }
