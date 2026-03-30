@@ -57,14 +57,32 @@ body {
   transition: background 0.2s;
 }
 
+/* On mobile: center the page vertically too when it fits in viewport */
+@media (max-width: 767px) {
+  #viewer-scroll {
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 #viewer-wrap {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
   padding: 16px;
   transform-origin: top center;
+  min-height: 100%;
+}
+
+/* Mobile: tighter padding, wrap centered */
+@media (max-width: 767px) {
+  #viewer-wrap {
+    padding: 8px;
+    align-items: flex-start;
+    min-height: unset;
+  }
 }
 
 /* ── LOADING ── */
@@ -93,11 +111,11 @@ body {
 }
 .canvas-wrap canvas { display: block; }
 
-/* ── USER STAMP (bottom-right corner of each page) ── */
+/* ── USER STAMP (bottom-left corner of each page) ── */
 .user-stamp {
   position: absolute;
   bottom: 8px;
-  right: 10px;
+  left: 10px;
   font-size: 0.55rem;
   color: rgba(80,80,80,0.35);
   font-family: monospace;
@@ -206,6 +224,21 @@ body {
   gap: 6px;
   padding: 0 10px;
   transition: background 0.2s, border-color 0.2s;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+#bottom-bar::-webkit-scrollbar { display: none; }
+
+/* Mobile: slightly shorter bar, tighter gaps */
+@media (max-width: 767px) {
+  :root { --bar-h: 54px; }
+  #bottom-bar { gap: 4px; padding: 0 6px; }
+  .b-btn { padding: 0 8px; height: 34px; font-size: 0.68rem; }
+  .b-btn.nav { width: 34px; font-size: 1rem; }
+  .page-input-inline { width: 34px; height: 30px; font-size: 0.72rem; }
+  .page-display { min-width: 36px; font-size: 0.68rem; }
+  /* Hide dual page button on mobile */
+  #dual-btn, #dual-divider { display: none; }
 }
 
 .b-btn {
@@ -310,8 +343,7 @@ body {
 
   <!-- Dual page -->
   <button class="b-btn" id="dual-btn" onclick="toggleDualPage()">⊞ Dual</button>
-
-  <div class="b-divider"></div>
+  <div class="b-divider" id="dual-divider"></div>
 
   <!-- Search -->
   <button class="b-btn" id="search-btn" onclick="toggleSearch()">🔍</button>
@@ -460,7 +492,7 @@ async function renderPage(num) {
   if (renderQueue !== null) { const next = renderQueue; renderQueue = null; renderPage(next); }
 }
 
-function isMobile() { return window.innerWidth < 768; }
+function isMobile() { return window.innerWidth <= 767; }
 
 async function renderCanvas(num) {
   const page = await pdfDoc.getPage(num);
@@ -538,8 +570,8 @@ function fitWidth() {
 
 function fitPage() { applyZoom(100); }
 
-window.addEventListener('orientationchange', () => { setTimeout(() => { if (pdfDoc) fitWidth(); }, 300); });
-window.addEventListener('resize', () => { if (pdfDoc) fitWidth(); });
+window.addEventListener('orientationchange', () => { setTimeout(() => { if (pdfDoc) { if (isMobile() && dualPage) { dualPage = false; } fitWidth(); } }, 300); });
+window.addEventListener('resize', () => { if (pdfDoc) { if (isMobile() && dualPage) { dualPage = false; document.getElementById('dual-btn').classList.remove('active'); document.getElementById('dual-btn').textContent = '⊞ Dual'; } fitWidth(); } });
 
 // ── DUAL PAGE ──
 function toggleDualPage() {
