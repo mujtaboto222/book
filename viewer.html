@@ -149,6 +149,8 @@ body {
   max-height: 220px;
   overflow-y: auto;
   backdrop-filter: blur(12px);
+  -webkit-transform: translateX(-50%) translateZ(0);
+  isolation: isolate;
 }
 #search-results-panel .result-item {
   padding: 0.5rem 0.8rem;
@@ -176,6 +178,8 @@ body {
   gap: 0.4rem;
   align-items: center;
   backdrop-filter: blur(12px);
+  -webkit-transform: translateX(-50%) translateZ(0);
+  isolation: isolate;
 }
 #search-bar.visible { display: flex; }
 .search-input {
@@ -226,6 +230,12 @@ body {
   transition: background 0.2s, border-color 0.2s;
   overflow-x: auto;
   scrollbar-width: none;
+  /* Force own GPU compositing layer — prevents iOS Safari from
+     dragging fixed elements when a sibling has CSS transform */
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  isolation: isolate;
 }
 #bottom-bar::-webkit-scrollbar { display: none; }
 
@@ -401,6 +411,8 @@ const scroll = document.getElementById('viewer-scroll');
 const wrap = document.getElementById('viewer-wrap');
 
 // ── PINCH-TO-ZOOM ──
+// We transform only #viewer-wrap (which lives inside #viewer-scroll, not a fixed element).
+// The bottom bar is fixed to <body>, so it is completely unaffected by any transform on #viewer-wrap.
 let pinchStartDist = null, pinchStartScale = null, pinchActive = false;
 
 scroll.addEventListener('touchstart', e => {
@@ -411,30 +423,35 @@ scroll.addEventListener('touchstart', e => {
       e.touches[0].clientY - e.touches[1].clientY
     );
     pinchStartScale = scale;
+    // Prevent scroll while pinching
+    e.preventDefault();
   } else {
     pinchActive = false;
   }
-}, { passive: true });
+}, { passive: false });
 
 scroll.addEventListener('touchmove', e => {
   if (e.touches.length === 2 && pinchStartDist !== null) {
+    e.preventDefault(); // prevent page zoom / scroll during pinch
     const dist = Math.hypot(
       e.touches[0].clientX - e.touches[1].clientX,
       e.touches[0].clientY - e.touches[1].clientY
     );
-    const newScale = Math.max(0.25, Math.min(3.0, pinchStartScale * (dist / pinchStartDist)));
-    scale = newScale;
-    wrap.style.transform = `scale(${scale / pinchStartScale})`;
-    wrap.style.transformOrigin = 'top center';
+    const liveScale = Math.max(0.25, Math.min(4.0, pinchStartScale * (dist / pinchStartDist)));
+    // Visual-only live preview: transform only #viewer-wrap, toolbar stays fixed
+    wrap.style.transform = `scale(${liveScale / pinchStartScale})`;
+    wrap.style.transformOrigin = 'center center';
+    scale = liveScale;
   }
-}, { passive: true });
+}, { passive: false });
 
 scroll.addEventListener('touchend', e => {
   if (pinchActive && e.touches.length < 2) {
     pinchActive = false;
     pinchStartDist = null;
     wrap.style.transform = '';
-    renderPage(currentPage);
+    wrap.style.transformOrigin = '';
+    renderPage(currentPage); // re-render at crisp resolution
   }
 }, { passive: true });
 
