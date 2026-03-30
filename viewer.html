@@ -10,330 +10,315 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
 :root {
-  --navy: #0f1535; --navy-mid: #1a2550;
-  --cyan: #00c2e0; --white: #f5f7ff;
-  --muted: #8a9bc4; --border: rgba(0,194,224,0.2);
-  --topbar-h: 48px; --toolbar-h: 44px;
-  --nav-h: 56px;
+--navy: #0f1535; --navy-mid: #1a2550;
+--cyan: #00c2e0; --white: #f5f7ff;
+--muted: #8a9bc4; --border: rgba(0,194,224,0.2);
+--topbar-h: 48px; --toolbar-h: 44px;
+--nav-h: 56px;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; overflow: hidden; }
 body {
-  background: var(--navy); color: var(--white);
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  user-select: none; -webkit-user-select: none;
-  touch-action: none; /* We handle all touch ourselves */
+background: var(--navy); color: var(--white);
+font-family: 'Segoe UI', system-ui, sans-serif;
+user-select: none; -webkit-user-select: none;
+touch-action: pan-x pan-y;
 }
-
 /* TOPBAR */
 .topbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  height: var(--topbar-h);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 1rem;
-  background: rgba(15,21,53,0.97); backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
+position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+height: var(--topbar-h);
+display: flex; align-items: center; justify-content: space-between;
+padding: 0 1rem;
+background: rgba(15,21,53,0.97); backdrop-filter: blur(16px);
+border-bottom: 1px solid var(--border);
 }
 .topbar-brand {
-  font-size: 0.7rem; font-weight: 700; color: var(--cyan);
-  letter-spacing: 0.08em; text-transform: uppercase;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  max-width: 55vw;
+font-size: 0.7rem; font-weight: 700; color: var(--cyan);
+letter-spacing: 0.08em; text-transform: uppercase;
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+max-width: 55vw;
 }
 .topbar-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
 .page-info { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
 .icon-btn {
-  background: transparent; border: 1px solid var(--border);
-  color: var(--muted); font-size: 0.7rem; padding: 0.3rem 0.6rem;
-  border-radius: 4px; cursor: pointer; transition: all 0.2s;
-  white-space: nowrap; -webkit-tap-highlight-color: transparent;
+background: transparent; border: 1px solid var(--border);
+color: var(--muted); font-size: 0.7rem; padding: 0.3rem 0.6rem;
+border-radius: 4px; cursor: pointer; transition: all 0.2s;
+white-space: nowrap; -webkit-tap-highlight-color: transparent;
 }
 .icon-btn:hover, .icon-btn:active { border-color: var(--cyan); color: var(--cyan); }
-
 /* TOOLBAR */
 .toolbar {
-  position: fixed; top: var(--topbar-h); left: 0; right: 0; z-index: 99;
-  height: var(--toolbar-h);
-  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
-  padding: 0 0.5rem; overflow-x: auto; overflow-y: hidden;
-  background: rgba(26,37,80,0.97); backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+position: fixed; top: var(--topbar-h); left: 0; right: 0; z-index: 99;
+height: var(--toolbar-h);
+display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+padding: 0 0.5rem; overflow-x: auto; overflow-y: hidden;
+background: rgba(26,37,80,0.97); backdrop-filter: blur(12px);
+border-bottom: 1px solid var(--border);
+-webkit-overflow-scrolling: touch; scrollbar-width: none;
 }
 .toolbar::-webkit-scrollbar { display: none; }
 .tb-btn {
-  background: rgba(0,194,224,0.08); border: 1px solid var(--border);
-  color: var(--white); font-size: 0.72rem; padding: 0.28rem 0.65rem;
-  border-radius: 5px; cursor: pointer; transition: all 0.2s;
-  white-space: nowrap; flex-shrink: 0;
-  -webkit-tap-highlight-color: transparent; min-height: 32px;
+background: rgba(0,194,224,0.08); border: 1px solid var(--border);
+color: var(--white); font-size: 0.72rem; padding: 0.28rem 0.65rem;
+border-radius: 5px; cursor: pointer; transition: all 0.2s;
+white-space: nowrap; flex-shrink: 0;
+-webkit-tap-highlight-color: transparent; min-height: 32px;
 }
 .tb-btn:active { background: rgba(0,194,224,0.25); border-color: var(--cyan); }
 .tb-btn.active { background: rgba(0,194,224,0.2); border-color: var(--cyan); color: var(--cyan); }
 .tb-divider { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
-
 /* ZOOM */
 .zoom-wrap { display: flex; align-items: center; gap: 0.2rem; flex-shrink: 0; }
 .zoom-input {
-  width: 46px; text-align: center;
-  background: rgba(15,21,53,0.8); border: 1px solid var(--border);
-  border-radius: 4px; color: var(--white); font-size: 0.72rem;
-  padding: 0.25rem; outline: none; font-family: inherit;
-  min-height: 28px;
+width: 46px; text-align: center;
+background: rgba(15,21,53,0.8); border: 1px solid var(--border);
+border-radius: 4px; color: var(--white); font-size: 0.72rem;
+padding: 0.25rem; outline: none; font-family: inherit;
+min-height: 28px;
 }
 .zoom-input:focus { border-color: var(--cyan); }
 .zoom-pct { font-size: 0.68rem; color: var(--muted); }
-
 /* SEARCH BAR */
 .search-bar {
-  display: none; position: fixed;
-  top: calc(var(--topbar-h) + var(--toolbar-h));
-  left: 0; right: 0; z-index: 98;
-  padding: 0.4rem 0.8rem; gap: 0.4rem; align-items: center;
-  background: rgba(15,21,53,0.97); border-bottom: 1px solid var(--border);
+display: none; position: fixed;
+top: calc(var(--topbar-h) + var(--toolbar-h));
+left: 0; right: 0; z-index: 98;
+padding: 0.4rem 0.8rem; gap: 0.4rem; align-items: center;
+background: rgba(15,21,53,0.97); border-bottom: 1px solid var(--border);
 }
 .search-bar.visible { display: flex; }
 .search-input {
-  flex: 1; background: rgba(26,37,80,0.9); border: 1px solid var(--cyan);
-  border-radius: 6px; padding: 0.4rem 0.8rem; color: var(--white);
-  font-size: 0.82rem; outline: none; font-family: inherit;
-  min-height: 36px;
+flex: 1; background: rgba(26,37,80,0.9); border: 1px solid var(--cyan);
+border-radius: 6px; padding: 0.4rem 0.8rem; color: var(--white);
+font-size: 0.82rem; outline: none; font-family: inherit;
+min-height: 36px;
 }
 .search-info { font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
 .search-nav-btn {
-  background: rgba(0,194,224,0.1); border: 1px solid var(--border);
-  color: var(--white); padding: 0.3rem 0.5rem; border-radius: 4px;
-  cursor: pointer; font-size: 0.75rem; min-height: 32px; min-width: 32px;
-  -webkit-tap-highlight-color: transparent;
+background: rgba(0,194,224,0.1); border: 1px solid var(--border);
+color: var(--white); padding: 0.3rem 0.5rem; border-radius: 4px;
+cursor: pointer; font-size: 0.75rem; min-height: 32px; min-width: 32px;
+-webkit-tap-highlight-color: transparent;
 }
 .search-close {
-  background: none; border: none; color: var(--muted);
-  cursor: pointer; font-size: 1.1rem; padding: 0.1rem 0.3rem;
-  min-height: 32px; min-width: 32px;
+background: none; border: none; color: var(--muted);
+cursor: pointer; font-size: 1.1rem; padding: 0.1rem 0.3rem;
+min-height: 32px; min-width: 32px;
 }
-
-/* ── PAN CANVAS AREA ── */
+/* VIEWER SCROLL AREA */
 #viewer-scroll {
-  position: fixed;
-  top: calc(var(--topbar-h) + var(--toolbar-h));
-  left: 0; right: 0;
-  bottom: var(--nav-h);
-  overflow: hidden; /* No native scroll — we pan manually */
-  display: flex; align-items: center; justify-content: center;
-  background: var(--navy);
-  cursor: grab;
-}
-#viewer-scroll.has-search {
-  top: calc(var(--topbar-h) + var(--toolbar-h) + 52px);
+position: fixed;
+top: calc(var(--topbar-h) + var(--toolbar-h));
+left: 0; right: 0;
+bottom: var(--nav-h);
+overflow: hidden;
+-webkit-overflow-scrolling: touch;
+display: flex; flex-direction: column; align-items: center;
+padding: 1rem 0.5rem;
+background: var(--navy);
+cursor: grab;
 }
 #viewer-scroll.dragging { cursor: grabbing; }
-
-/* The inner container that we translate to pan */
-#viewer-wrap {
-  display: flex; flex-direction: row; justify-content: center;
-  align-items: flex-start; gap: 8px;
-  /* No fixed width — let content determine size */
-  transform: translate(0px, 0px);
-  transition: none;
-  will-change: transform;
-  position: relative;
+#viewer-scroll.has-search {
+top: calc(var(--topbar-h) + var(--toolbar-h) + 52px);
 }
-
+#viewer-wrap {
+display: flex; flex-direction: row; justify-content: center;
+align-items: flex-start; gap: 8px; width: 100%;
+min-height: 100%;
+will-change: transform;
+transform: translate(0px, 0px);
+}
 #loading {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 1rem; padding: 4rem 2rem; color: var(--muted);
+display: flex; flex-direction: column; align-items: center;
+gap: 1rem; padding: 4rem 2rem; color: var(--muted); width: 100%;
 }
 .spinner {
-  width: 36px; height: 36px; border: 3px solid var(--border);
-  border-top-color: var(--cyan); border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+width: 36px; height: 36px; border: 3px solid var(--border);
+border-top-color: var(--cyan); border-radius: 50%;
+animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .load-text { font-size: 0.82rem; }
-
 .canvas-wrap {
-  position: relative; flex-shrink: 0;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+position: relative; flex-shrink: 0;
+box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
 }
-.canvas-wrap canvas { display: block; }
+.canvas-wrap canvas { display: block; max-width: 100%; }
 .canvas-wrap::after {
-  content: 'F(ORTH) PART B · ORTHO TIMES · M.B. MEKKI';
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-size: 0.9rem; font-weight: 700; letter-spacing: 0.15em;
-  color: rgba(0,194,224,0.055); pointer-events: none;
-  white-space: nowrap; overflow: hidden;
-  transform: rotate(-30deg) scale(1.5); text-transform: uppercase; z-index: 10;
+content: 'F(ORTH) PART B · ORTHO TIMES · M.B. MEKKI';
+position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+font-size: 0.9rem; font-weight: 700; letter-spacing: 0.15em;
+color: rgba(0,194,224,0.055); pointer-events: none;
+white-space: nowrap; overflow: hidden;
+transform: rotate(-30deg) scale(1.5); text-transform: uppercase; z-index: 10;
 }
 .highlight-overlay {
-  position: absolute; background: rgba(255,220,0,0.35);
-  border: 1px solid rgba(255,200,0,0.6); pointer-events: none; z-index: 11; border-radius: 2px;
+position: absolute; background: rgba(255,220,0,0.35);
+border: 1px solid rgba(255,200,0,0.6); pointer-events: none; z-index: 11; border-radius: 2px;
 }
-
-/* PAGE NAV */
+/* PAGE NAV — fixed bottom bar */
 .page-nav {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-  height: var(--nav-h);
-  display: flex; align-items: center; justify-content: center; gap: 0.8rem;
-  background: rgba(15,21,53,0.97); backdrop-filter: blur(12px);
-  border-top: 1px solid var(--border);
-  padding: 0 1rem;
+position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+height: var(--nav-h);
+display: flex; align-items: center; justify-content: center; gap: 0.8rem;
+background: rgba(15,21,53,0.97); backdrop-filter: blur(12px);
+border-top: 1px solid var(--border);
+padding: 0 1rem;
 }
 .nav-btn {
-  background: rgba(0,194,224,0.08); border: 1px solid var(--border);
-  color: var(--white); font-size: 1rem; cursor: pointer;
-  padding: 0.4rem 0.8rem; border-radius: 6px; transition: all 0.2s;
-  min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;
-  -webkit-tap-highlight-color: transparent;
+background: rgba(0,194,224,0.08); border: 1px solid var(--border);
+color: var(--white); font-size: 1rem; cursor: pointer;
+padding: 0.4rem 0.8rem; border-radius: 6px; transition: all 0.2s;
+min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;
+-webkit-tap-highlight-color: transparent;
 }
 .nav-btn:active { background: rgba(0,194,224,0.2); border-color: var(--cyan); }
 .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 .page-input {
-  width: 48px; text-align: center;
-  background: rgba(26,37,80,0.9); border: 1px solid var(--border);
-  border-radius: 6px; color: var(--white); font-size: 0.85rem;
-  padding: 0.4rem; outline: none; min-height: 40px;
+width: 48px; text-align: center;
+background: rgba(26,37,80,0.9); border: 1px solid var(--border);
+border-radius: 6px; color: var(--white); font-size: 0.85rem;
+padding: 0.4rem; outline: none; min-height: 40px;
 }
 .page-input:focus { border-color: var(--cyan); }
 .page-total { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
-
 /* SEARCH RESULTS */
 #search-results-panel {
-  display: none; position: fixed;
-  top: calc(var(--topbar-h) + var(--toolbar-h) + 52px);
-  right: 0.5rem; z-index: 97;
-  background: rgba(15,21,53,0.97); border: 1px solid var(--border);
-  border-radius: 8px; width: min(220px, 70vw); max-height: 240px; overflow-y: auto;
-  backdrop-filter: blur(12px);
+display: none; position: fixed;
+top: calc(var(--topbar-h) + var(--toolbar-h) + 52px);
+right: 0.5rem; z-index: 97;
+background: rgba(15,21,53,0.97); border: 1px solid var(--border);
+border-radius: 8px; width: min(220px, 70vw); max-height: 240px; overflow-y: auto;
+backdrop-filter: blur(12px);
 }
 #search-results-panel .result-item {
-  padding: 0.55rem 0.8rem; font-size: 0.73rem; cursor: pointer;
-  border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--muted);
-  -webkit-tap-highlight-color: transparent;
+padding: 0.55rem 0.8rem; font-size: 0.73rem; cursor: pointer;
+border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--muted);
+-webkit-tap-highlight-color: transparent;
 }
 #search-results-panel .result-item:active { background: rgba(0,194,224,0.1); }
 #search-results-panel .result-item .pg { color: var(--cyan); font-weight: 700; margin-right: 0.3rem; }
-
 /* DEVTOOLS */
 #dt-warning {
-  display: none; position: fixed; inset: 0; z-index: 9999;
-  background: var(--navy); flex-direction: column; align-items: center;
-  justify-content: center; gap: 1rem; text-align: center; padding: 2rem;
+display: none; position: fixed; inset: 0; z-index: 9999;
+background: var(--navy); flex-direction: column; align-items: center;
+justify-content: center; gap: 1rem; text-align: center; padding: 2rem;
 }
 #dt-warning h2 { font-size: 1.4rem; color: var(--cyan); }
 #dt-warning p { color: var(--muted); max-width: 320px; line-height: 1.7; font-size: 0.9rem; }
-
 /* SWIPE HINT */
 .swipe-hint {
-  position: fixed; bottom: calc(var(--nav-h) + 8px); left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.65rem; color: rgba(138,155,196,0.4);
-  pointer-events: none; z-index: 99; white-space: nowrap;
-  animation: fadeHint 3s ease forwards;
+position: fixed; bottom: calc(var(--nav-h) + 8px); left: 50%;
+transform: translateX(-50%);
+font-size: 0.65rem; color: rgba(138,155,196,0.4);
+pointer-events: none; z-index: 99; white-space: nowrap;
+animation: fadeHint 3s ease forwards;
 }
 @keyframes fadeHint { 0%,70%{opacity:1} 100%{opacity:0} }
-
 /* RESPONSIVE */
 @media (max-width: 480px) {
-  .topbar-brand { font-size: 0.62rem; }
-  .tb-btn { font-size: 0.68rem; padding: 0.25rem 0.5rem; }
-  .zoom-input { width: 38px; }
+.topbar-brand { font-size: 0.62rem; }
+.tb-btn { font-size: 0.68rem; padding: 0.25rem 0.5rem; }
+.zoom-input { width: 38px; }
 }
 @media (min-width: 768px) {
-  :root { --topbar-h: 50px; --toolbar-h: 46px; --nav-h: 56px; }
-  .tb-btn { font-size: 0.78rem; padding: 0.32rem 0.8rem; }
-  .topbar-brand { font-size: 0.75rem; }
+:root { --topbar-h: 50px; --toolbar-h: 46px; --nav-h: 56px; }
+.tb-btn { font-size: 0.78rem; padding: 0.32rem 0.8rem; }
+.topbar-brand { font-size: 0.75rem; }
 }
 </style>
 </head>
 <body>
 
 <div id="dt-warning">
-  <h2>⚠ Access Paused</h2>
-  <p>Developer tools detected. Please close DevTools to continue reading.</p>
+<h2>⚠ Access Paused</h2>
+<p>Developer tools detected. Please close DevTools to continue reading.</p>
 </div>
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <span class="topbar-brand">F(Orth) Part B · Easy Study Notes</span>
-  <div class="topbar-right">
-    <span class="page-info" id="top-page-info">Loading…</span>
-    <button class="icon-btn" onclick="toggleFullscreen()" id="fs-btn">⛶</button>
-    <button class="icon-btn" onclick="logout()">↩</button>
-  </div>
+<span class="topbar-brand">F(Orth) Part B · Easy Study Notes</span>
+<div class="topbar-right">
+<span class="page-info" id="top-page-info">Loading…</span>
+<button class="icon-btn" onclick="toggleFullscreen()" id="fs-btn">⛶</button>
+<button class="icon-btn" onclick="logout()">↩</button>
+</div>
 </div>
 
 <!-- TOOLBAR -->
 <div class="toolbar">
-  <button class="tb-btn" onclick="zoomOut()">−</button>
-  <div class="zoom-wrap">
-    <input class="zoom-input" id="zoom-input" type="number" min="25" max="300" value="100"
-      onchange="applyZoom(this.value)" onkeydown="if(event.key==='Enter'){applyZoom(this.value);this.blur();}">
-    <span class="zoom-pct">%</span>
-  </div>
-  <button class="tb-btn" onclick="zoomIn()">+</button>
-  <div class="tb-divider"></div>
-  <button class="tb-btn" onclick="fitWidth()">⟷ Width</button>
-  <button class="tb-btn" onclick="fitPage()">□ 100%</button>
-  <div class="tb-divider"></div>
-  <button class="tb-btn" id="dual-btn" onclick="toggleDualPage()">⊞ Dual</button>
-  <div class="tb-divider"></div>
-  <button class="tb-btn" id="search-btn" onclick="toggleSearch()">🔍</button>
+<button class="tb-btn" onclick="zoomOut()">−</button>
+<div class="zoom-wrap">
+<input class="zoom-input" id="zoom-input" type="number" min="25" max="300" value="100"
+onchange="applyZoom(this.value)" onkeydown="if(event.key==='Enter'){applyZoom(this.value);this.blur();}">
+<span class="zoom-pct">%</span>
+</div>
+<button class="tb-btn" onclick="zoomIn()">+</button>
+<div class="tb-divider"></div>
+<button class="tb-btn" onclick="fitWidth()">⟷ Width</button>
+<button class="tb-btn" onclick="fitPage()">□ 100%</button>
+<div class="tb-divider"></div>
+<button class="tb-btn" id="dual-btn" onclick="toggleDualPage()">⊞ Dual</button>
+<div class="tb-divider"></div>
+<button class="tb-btn" id="search-btn" onclick="toggleSearch()">🔍</button>
 </div>
 
 <!-- SEARCH -->
 <div class="search-bar" id="search-bar">
-  <input class="search-input" id="search-input" placeholder="Search document…" oninput="doSearch(this.value)">
-  <span class="search-info" id="search-info"></span>
-  <button class="search-nav-btn" onclick="prevMatch()">↑</button>
-  <button class="search-nav-btn" onclick="nextMatch()">↓</button>
-  <button class="search-close" onclick="closeSearch()">✕</button>
+<input class="search-input" id="search-input" placeholder="Search document…" oninput="doSearch(this.value)">
+<span class="search-info" id="search-info"></span>
+<button class="search-nav-btn" onclick="prevMatch()">↑</button>
+<button class="search-nav-btn" onclick="nextMatch()">↓</button>
+<button class="search-close" onclick="closeSearch()">✕</button>
 </div>
 <div id="search-results-panel"></div>
 
-<!-- PAN AREA -->
+<!-- SCROLL AREA -->
 <div id="viewer-scroll">
-  <div id="viewer-wrap">
-    <div id="loading">
-      <div class="spinner"></div>
-      <p class="load-text">Loading your study notes…</p>
-    </div>
-  </div>
+<div id="viewer-wrap">
+<div id="loading">
+<div class="spinner"></div>
+<p class="load-text">Loading your study notes…</p>
+</div>
+</div>
 </div>
 
 <!-- PAGE NAV -->
 <div class="page-nav">
-  <button class="nav-btn" id="btn-first" onclick="goFirst()">⟪</button>
-  <button class="nav-btn" id="btn-prev" onclick="goPrev()">‹</button>
-  <input class="page-input" id="page-input" type="number" min="1" value="1"
-    onchange="goToPage(this.value)" onkeydown="if(event.key==='Enter')this.blur();">
-  <span class="page-total" id="page-total">/ —</span>
-  <button class="nav-btn" id="btn-next" onclick="goNext()">›</button>
-  <button class="nav-btn" id="btn-last" onclick="goLast()">⟫</button>
+<button class="nav-btn" id="btn-first" onclick="goFirst()">⟪</button>
+<button class="nav-btn" id="btn-prev" onclick="goPrev()">‹</button>
+<input class="page-input" id="page-input" type="number" min="1" value="1"
+onchange="goToPage(this.value)" onkeydown="if(event.key==='Enter')this.blur();">
+<span class="page-total" id="page-total">/ —</span>
+<button class="nav-btn" id="btn-next" onclick="goNext()">›</button>
+<button class="nav-btn" id="btn-last" onclick="goLast()">⟫</button>
 </div>
 
 <script>
 // ── PROTECTIONS ──
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('keydown', e => {
-  const blocked = [
-    e.ctrlKey && ['c','a','s','p','u'].includes(e.key.toLowerCase()),
-    e.metaKey && ['c','a','s','p','u'].includes(e.key.toLowerCase()),
-    e.key === 'PrintScreen', e.key === 'F12',
-    e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase()),
-  ];
-  if (blocked.some(Boolean)) { e.preventDefault(); e.stopPropagation(); return false; }
+const blocked = [
+e.ctrlKey && ['c','a','s','p','u'].includes(e.key.toLowerCase()),
+e.metaKey && ['c','a','s','p','u'].includes(e.key.toLowerCase()),
+e.key === 'PrintScreen', e.key === 'F12',
+e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase()),
+];
+if (blocked.some(Boolean)) { e.preventDefault(); e.stopPropagation(); return false; }
 });
 document.addEventListener('copy', e => e.preventDefault());
 document.addEventListener('cut', e => e.preventDefault());
 document.addEventListener('dragstart', e => e.preventDefault());
 window.addEventListener('beforeprint', e => { e.preventDefault(); window.stop(); });
-
 const dtWarning = document.getElementById('dt-warning');
 let devToolsOpen = false;
 setInterval(() => {
-  const open = window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160;
-  if (open !== devToolsOpen) { devToolsOpen = open; dtWarning.style.display = open ? 'flex' : 'none'; }
+const open = window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160;
+if (open !== devToolsOpen) { devToolsOpen = open; dtWarning.style.display = open ? 'flex' : 'none'; }
 }, 1000);
 
 // ── PDF.JS ──
@@ -343,40 +328,22 @@ let scale = 1.0, rendering = false, renderQueue = null;
 let dualPage = false;
 let searchMatches = [], searchMatchIndex = 0, pageTextCache = {};
 
-// ── PAN STATE ──
+// ── PAN / DRAG (replaces the old touchstart/touchend swipe handler) ──
 const scroll = document.getElementById('viewer-scroll');
-const wrap = document.getElementById('viewer-wrap');
+const wrap   = document.getElementById('viewer-wrap');
 let panX = 0, panY = 0;
 let isPanning = false;
 let panStartX = 0, panStartY = 0;
 let panOriginX = 0, panOriginY = 0;
+let pointerDownTime = 0, pointerStartX = 0, pointerStartY = 0;
 
-// For detecting tap vs drag (to allow page-turn on short swipe at fit-width)
-let pointerDownTime = 0;
-let pointerTotalDist = 0;
-let pointerStartX = 0, pointerStartY = 0;
-
-// Single touch tracking for pinch-to-zoom
-let lastTouchDist = null;
-
-function setWrapTranslate(x, y) {
-  panX = x; panY = y;
-  wrap.style.transform = `translate(${x}px, ${y}px)`;
-}
-
-function clampPan() {
-  // Allow panning up to the size of the content beyond the viewport
-  const viewW = scroll.clientWidth;
-  const viewH = scroll.clientHeight;
-  const contentW = wrap.scrollWidth;
-  const contentH = wrap.scrollHeight;
-
-  // How much the content overflows in each direction
-  const maxX = Math.max(0, (contentW - viewW) / 2 + 40);
-  const maxY = Math.max(0, (contentH - viewH) / 2 + 40);
-
-  panX = Math.max(-maxX, Math.min(maxX, panX));
-  panY = Math.max(-maxY, Math.min(maxY, panY));
+function applyPan(x, y) {
+  const viewW  = scroll.clientWidth;
+  const viewH  = scroll.clientHeight;
+  const maxX   = Math.max(0, (wrap.offsetWidth  - viewW)  / 2 + 60);
+  const maxY   = Math.max(0, (wrap.offsetHeight - viewH)  / 2 + 60);
+  panX = Math.max(-maxX, Math.min(maxX, x));
+  panY = Math.max(-maxY, Math.min(maxY, y));
   wrap.style.transform = `translate(${panX}px, ${panY}px)`;
 }
 
@@ -385,51 +352,33 @@ function resetPan() {
   wrap.style.transform = 'translate(0px, 0px)';
 }
 
-// ── POINTER EVENTS (unified mouse + touch) ──
-scroll.addEventListener('pointerdown', (e) => {
-  // Don't start pan if clicking toolbar buttons etc.
-  if (e.target.closest('button, input, .toolbar, .topbar, .page-nav, .search-bar')) return;
+scroll.addEventListener('pointerdown', e => {
+  if (e.target.closest('button, input')) return;
   isPanning = true;
   scroll.classList.add('dragging');
-  panStartX = e.clientX;
-  panStartY = e.clientY;
-  panOriginX = panX;
-  panOriginY = panY;
-  pointerStartX = e.clientX;
-  pointerStartY = e.clientY;
-  pointerDownTime = Date.now();
-  pointerTotalDist = 0;
   scroll.setPointerCapture(e.pointerId);
+  panStartX = e.clientX; panStartY = e.clientY;
+  panOriginX = panX;     panOriginY = panY;
+  pointerStartX = e.clientX; pointerStartY = e.clientY;
+  pointerDownTime = Date.now();
 }, { passive: true });
 
-scroll.addEventListener('pointermove', (e) => {
+scroll.addEventListener('pointermove', e => {
   if (!isPanning) return;
-  const dx = e.clientX - panStartX;
-  const dy = e.clientY - panStartY;
-  pointerTotalDist += Math.abs(e.movementX) + Math.abs(e.movementY);
-  panX = panOriginX + dx;
-  panY = panOriginY + dy;
-  clampPan();
+  applyPan(panOriginX + (e.clientX - panStartX), panOriginY + (e.clientY - panStartY));
 }, { passive: true });
 
-scroll.addEventListener('pointerup', (e) => {
+scroll.addEventListener('pointerup', e => {
   if (!isPanning) return;
   isPanning = false;
   scroll.classList.remove('dragging');
-
   const elapsed = Date.now() - pointerDownTime;
-  const totalDx = e.clientX - pointerStartX;
-  const totalDy = e.clientY - pointerStartY;
-
-  // If it was a quick, mostly-horizontal short flick with little movement → page turn
-  // Only do this when content fits in viewport (not zoomed in much)
-  const contentW = wrap.scrollWidth;
-  const viewW = scroll.clientWidth;
-  const isZoomedOut = contentW <= viewW + 20;
-
-  if (isZoomedOut && elapsed < 350 && Math.abs(totalDx) > 45 && Math.abs(totalDx) > Math.abs(totalDy) * 1.5) {
-    if (totalDx < 0) goNext();
-    else goPrev();
+  const dx = e.clientX - pointerStartX;
+  const dy = e.clientY - pointerStartY;
+  // Quick horizontal flick with no zoom → turn page (same behaviour as original swipe)
+  const isZoomedIn = wrap.offsetWidth > scroll.clientWidth + 20;
+  if (!isZoomedIn && elapsed < 350 && Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    if (dx < 0) goNext(); else goPrev();
   }
 }, { passive: true });
 
@@ -438,114 +387,79 @@ scroll.addEventListener('pointercancel', () => {
   scroll.classList.remove('dragging');
 }, { passive: true });
 
-// ── PINCH TO ZOOM (touch) ──
-scroll.addEventListener('touchstart', (e) => {
-  if (e.touches.length === 2) {
-    lastTouchDist = getTouchDist(e.touches);
-  }
-}, { passive: true });
-
-scroll.addEventListener('touchmove', (e) => {
-  if (e.touches.length === 2 && lastTouchDist !== null) {
-    e.preventDefault();
-    const newDist = getTouchDist(e.touches);
-    const ratio = newDist / lastTouchDist;
-    lastTouchDist = newDist;
-    const newScale = Math.max(0.25, Math.min(3.0, scale * ratio));
-    if (Math.abs(newScale - scale) > 0.01) {
-      applyZoom(Math.round(newScale * 100));
-    }
-  }
-}, { passive: false });
-
-scroll.addEventListener('touchend', (e) => {
-  if (e.touches.length < 2) lastTouchDist = null;
-}, { passive: true });
-
-function getTouchDist(touches) {
-  const dx = touches[0].clientX - touches[1].clientX;
-  const dy = touches[0].clientY - touches[1].clientY;
-  return Math.sqrt(dx * dx + dy * dy);
-}
-
 // ── LOAD PDF ──
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
 async function loadPDF() {
-  try {
-    document.querySelector('.load-text').textContent = 'Fetching…';
-    const response = await fetch('book.pdf');
-    const arrayBuffer = await response.arrayBuffer();
-    document.querySelector('.load-text').textContent = 'Rendering…';
-    pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    totalPages = pdfDoc.numPages;
-    document.getElementById('page-total').textContent = '/ ' + totalPages;
-    document.getElementById('loading').style.display = 'none';
-
-    if (window.innerWidth < 768) fitWidth();
-    else renderPage(1);
-
-    if ('ontouchstart' in window) {
-      const hint = document.createElement('div');
-      hint.className = 'swipe-hint';
-      hint.textContent = 'Drag to pan · Pinch to zoom · Swipe to turn page';
-      document.body.appendChild(hint);
-      setTimeout(() => hint.remove(), 3500);
-    }
-  } catch(e) {
-    document.querySelector('.load-text').textContent = 'Error: ' + e.message;
-  }
+try {
+document.querySelector('.load-text').textContent = 'Fetching…';
+const response = await fetch('book.pdf');
+const arrayBuffer = await response.arrayBuffer();
+document.querySelector('.load-text').textContent = 'Rendering…';
+pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+totalPages = pdfDoc.numPages;
+document.getElementById('page-total').textContent = '/ ' + totalPages;
+document.getElementById('loading').style.display = 'none';
+// Auto fit width on mobile
+if (window.innerWidth < 768) fitWidth();
+else renderPage(1);
+// Show swipe hint on mobile
+if ('ontouchstart' in window) {
+const hint = document.createElement('div');
+hint.className = 'swipe-hint';
+hint.textContent = 'Swipe left/right to turn pages';
+document.body.appendChild(hint);
+setTimeout(() => hint.remove(), 3500);
+}
+} catch(e) {
+document.querySelector('.load-text').textContent = 'Error: ' + e.message;
+}
 }
 
 // ── RENDER ──
 async function renderPage(num) {
-  if (rendering) { renderQueue = num; return; }
-  rendering = true; currentPage = num; updateNav();
-  const wrap = document.getElementById('viewer-wrap');
-  wrap.querySelectorAll('.canvas-wrap').forEach(el => el.remove());
-
-  if (dualPage && !isMobile()) {
-    await renderCanvas(num, wrap);
-    if (num + 1 <= totalPages) await renderCanvas(num + 1, wrap);
-  } else {
-    await renderCanvas(num, wrap);
-  }
-
-  // Reset pan to center on page change
-  resetPan();
-
-  rendering = false;
-  if (renderQueue !== null) { const next = renderQueue; renderQueue = null; renderPage(next); }
+if (rendering) { renderQueue = num; return; }
+rendering = true; currentPage = num; updateNav();
+const wrap = document.getElementById('viewer-wrap');
+wrap.querySelectorAll('.canvas-wrap').forEach(el => el.remove());
+if (dualPage && !isMobile()) {
+await renderCanvas(num, wrap);
+if (num + 1 <= totalPages) await renderCanvas(num + 1, wrap);
+} else {
+await renderCanvas(num, wrap);
+}
+// Reset pan to centre on every page change
+resetPan();
+rendering = false;
+if (renderQueue !== null) { const next = renderQueue; renderQueue = null; renderPage(next); }
 }
 
 function isMobile() { return window.innerWidth < 768; }
 
 async function renderCanvas(num, wrap) {
-  const page = await pdfDoc.getPage(num);
-  const viewport = page.getViewport({ scale });
-  const div = document.createElement('div');
-  div.className = 'canvas-wrap'; div.dataset.pageNum = num;
-  const canvas = document.createElement('canvas');
-  canvas.width = viewport.width; canvas.height = viewport.height;
-  div.style.width = viewport.width + 'px'; div.style.height = viewport.height + 'px';
-  div.appendChild(canvas); wrap.appendChild(div);
-  await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-  if (!pageTextCache[num]) {
-    const tc = await page.getTextContent();
-    pageTextCache[num] = { items: tc.items, viewport };
-  }
+const page = await pdfDoc.getPage(num);
+const viewport = page.getViewport({ scale });
+const div = document.createElement('div');
+div.className = 'canvas-wrap'; div.dataset.pageNum = num;
+const canvas = document.createElement('canvas');
+canvas.width = viewport.width; canvas.height = viewport.height;
+div.style.width = viewport.width + 'px'; div.style.height = viewport.height + 'px';
+div.appendChild(canvas); wrap.appendChild(div);
+await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+if (!pageTextCache[num]) {
+const tc = await page.getTextContent();
+pageTextCache[num] = { items: tc.items, viewport };
+}
 }
 
 function updateNav() {
-  document.getElementById('page-input').value = currentPage;
-  const label = dualPage && !isMobile() ? `${currentPage}–${Math.min(currentPage+1,totalPages)}` : currentPage;
-  document.getElementById('top-page-info').textContent = `${label}/${totalPages}`;
-  document.getElementById('btn-prev').disabled = currentPage <= 1;
-  document.getElementById('btn-first').disabled = currentPage <= 1;
-  const atEnd = dualPage && !isMobile() ? currentPage+2 > totalPages : currentPage >= totalPages;
-  document.getElementById('btn-next').disabled = atEnd;
-  document.getElementById('btn-last').disabled = currentPage >= totalPages;
-  document.getElementById('zoom-input').value = Math.round(scale * 100);
+document.getElementById('page-input').value = currentPage;
+const label = dualPage && !isMobile() ? `${currentPage}–${Math.min(currentPage+1,totalPages)}` : currentPage;
+document.getElementById('top-page-info').textContent = `${label}/${totalPages}`;
+document.getElementById('btn-prev').disabled = currentPage <= 1;
+document.getElementById('btn-first').disabled = currentPage <= 1;
+const atEnd = dualPage && !isMobile() ? currentPage+2 > totalPages : currentPage >= totalPages;
+document.getElementById('btn-next').disabled = atEnd;
+document.getElementById('btn-last').disabled = currentPage >= totalPages;
+document.getElementById('zoom-input').value = Math.round(scale * 100);
 }
 
 // ── NAV ──
@@ -557,116 +471,117 @@ function goToPage(n) { renderPage(Math.max(1, Math.min(totalPages, parseInt(n)||
 
 // ── ZOOM ──
 function applyZoom(val) {
-  let pct = Math.max(25, Math.min(300, parseInt(val)||100));
-  document.getElementById('zoom-input').value = pct;
-  scale = pct / 100;
-  renderPage(currentPage);
+let pct = Math.max(25, Math.min(300, parseInt(val)||100));
+document.getElementById('zoom-input').value = pct;
+scale = pct / 100;
+renderPage(currentPage);
 }
 function zoomIn() { applyZoom(Math.round(scale*100) + 10); }
 function zoomOut() { applyZoom(Math.round(scale*100) - 10); }
 function fitWidth() {
-  const availW = window.innerWidth - (dualPage && !isMobile() ? 80 : 24);
-  applyZoom(Math.round((availW / 612) * 100));
+const availW = window.innerWidth - (dualPage && !isMobile() ? 80 : 24);
+applyZoom(Math.round((availW / 612) * 100));
 }
 function fitPage() { applyZoom(100); }
 
+// Handle orientation change
 window.addEventListener('orientationchange', () => {
-  setTimeout(() => { if (pdfDoc) fitWidth(); }, 300);
+setTimeout(() => { if (pdfDoc) fitWidth(); }, 300);
 });
 window.addEventListener('resize', () => {
-  if (pdfDoc && isMobile()) fitWidth();
+if (pdfDoc && isMobile()) fitWidth();
 });
 
 // ── DUAL PAGE ──
 function toggleDualPage() {
-  dualPage = !dualPage;
-  document.getElementById('dual-btn').classList.toggle('active', dualPage);
-  document.getElementById('dual-btn').textContent = dualPage ? '▣ Single' : '⊞ Dual';
-  if (dualPage && currentPage % 2 === 0) currentPage = Math.max(1, currentPage-1);
-  renderPage(currentPage);
+dualPage = !dualPage;
+document.getElementById('dual-btn').classList.toggle('active', dualPage);
+document.getElementById('dual-btn').textContent = dualPage ? '▣ Single' : '⊞ Dual';
+if (dualPage && currentPage % 2 === 0) currentPage = Math.max(1, currentPage-1);
+renderPage(currentPage);
 }
 
 // ── FULLSCREEN ──
 function toggleFullscreen() {
-  const el = document.documentElement;
-  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-    if (el.requestFullscreen) el.requestFullscreen();
-    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-    document.getElementById('fs-btn').textContent = '✕';
-  } else {
-    if (document.exitFullscreen) document.exitFullscreen();
-    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-    document.getElementById('fs-btn').textContent = '⛶';
-  }
+const el = document.documentElement;
+if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+if (el.requestFullscreen) el.requestFullscreen();
+else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+document.getElementById('fs-btn').textContent = '✕';
+} else {
+if (document.exitFullscreen) document.exitFullscreen();
+else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+document.getElementById('fs-btn').textContent = '⛶';
+}
 }
 document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) document.getElementById('fs-btn').textContent = '⛶'; });
 document.addEventListener('webkitfullscreenchange', () => { if (!document.webkitFullscreenElement) document.getElementById('fs-btn').textContent = '⛶'; });
 
 // ── SEARCH ──
 function toggleSearch() {
-  const bar = document.getElementById('search-bar');
-  const visible = bar.classList.toggle('visible');
-  document.getElementById('search-btn').classList.toggle('active', visible);
-  document.getElementById('viewer-scroll').classList.toggle('has-search', visible);
-  if (visible) document.getElementById('search-input').focus();
-  else closeSearch();
+const bar = document.getElementById('search-bar');
+const visible = bar.classList.toggle('visible');
+document.getElementById('search-btn').classList.toggle('active', visible);
+document.getElementById('viewer-scroll').classList.toggle('has-search', visible);
+if (visible) document.getElementById('search-input').focus();
+else closeSearch();
 }
 function closeSearch() {
-  document.getElementById('search-bar').classList.remove('visible');
-  document.getElementById('search-btn').classList.remove('active');
-  document.getElementById('viewer-scroll').classList.remove('has-search');
-  document.getElementById('search-input').value = '';
-  document.getElementById('search-info').textContent = '';
-  document.getElementById('search-results-panel').style.display = 'none';
-  document.getElementById('search-results-panel').innerHTML = '';
-  clearHighlights(); searchMatches = []; searchMatchIndex = 0;
+document.getElementById('search-bar').classList.remove('visible');
+document.getElementById('search-btn').classList.remove('active');
+document.getElementById('viewer-scroll').classList.remove('has-search');
+document.getElementById('search-input').value = '';
+document.getElementById('search-info').textContent = '';
+document.getElementById('search-results-panel').style.display = 'none';
+document.getElementById('search-results-panel').innerHTML = '';
+clearHighlights(); searchMatches = []; searchMatchIndex = 0;
 }
 async function doSearch(query) {
-  clearHighlights(); searchMatches = [];
-  const panel = document.getElementById('search-results-panel');
-  if (!query || query.length < 2) { document.getElementById('search-info').textContent = ''; panel.style.display = 'none'; panel.innerHTML = ''; return; }
-  document.getElementById('search-info').textContent = '…';
-  const lq = query.toLowerCase();
-  for (let p = 1; p <= totalPages; p++) {
-    if (!pageTextCache[p]) {
-      const page = await pdfDoc.getPage(p);
-      const tc = await page.getTextContent();
-      pageTextCache[p] = { items: tc.items, viewport: page.getViewport({ scale }) };
-    }
-    if (pageTextCache[p].items.map(i=>i.str).join(' ').toLowerCase().includes(lq)) searchMatches.push(p);
-  }
-  if (!searchMatches.length) { document.getElementById('search-info').textContent = 'Not found'; panel.style.display = 'none'; return; }
-  document.getElementById('search-info').textContent = `${searchMatches.length}pg`;
-  searchMatchIndex = 0;
-  panel.innerHTML = searchMatches.map(pg => {
-    const snippet = pageTextCache[pg].items.map(i=>i.str).join(' ');
-    const idx = snippet.toLowerCase().indexOf(lq);
-    const preview = snippet.substring(Math.max(0,idx-15), idx+35).trim();
-    return `<div class="result-item" onclick="jumpToMatch(${pg})"><span class="pg">P.${pg}</span>${preview}…</div>`;
-  }).join('');
-  panel.style.display = 'block';
-  jumpToMatch(searchMatches[0]);
+clearHighlights(); searchMatches = [];
+const panel = document.getElementById('search-results-panel');
+if (!query || query.length < 2) { document.getElementById('search-info').textContent = ''; panel.style.display = 'none'; panel.innerHTML = ''; return; }
+document.getElementById('search-info').textContent = '…';
+const lq = query.toLowerCase();
+for (let p = 1; p <= totalPages; p++) {
+if (!pageTextCache[p]) {
+const page = await pdfDoc.getPage(p);
+const tc = await page.getTextContent();
+pageTextCache[p] = { items: tc.items, viewport: page.getViewport({ scale }) };
+}
+if (pageTextCache[p].items.map(i=>i.str).join(' ').toLowerCase().includes(lq)) searchMatches.push(p);
+}
+if (!searchMatches.length) { document.getElementById('search-info').textContent = 'Not found'; panel.style.display = 'none'; return; }
+document.getElementById('search-info').textContent = `${searchMatches.length}pg`;
+searchMatchIndex = 0;
+panel.innerHTML = searchMatches.map(pg => {
+const snippet = pageTextCache[pg].items.map(i=>i.str).join(' ');
+const idx = snippet.toLowerCase().indexOf(lq);
+const preview = snippet.substring(Math.max(0,idx-15), idx+35).trim();
+return `<div class="result-item" onclick="jumpToMatch(${pg})"><span class="pg">P.${pg}</span>${preview}…</div>`;
+}).join('');
+panel.style.display = 'block';
+jumpToMatch(searchMatches[0]);
 }
 function jumpToMatch(pg) { goToPage(pg); setTimeout(() => highlightOnPage(pg, document.getElementById('search-input').value), 700); }
 function highlightOnPage(pageNum, query) {
-  clearHighlights();
-  const wrap = document.getElementById('viewer-wrap');
-  const pageDiv = wrap.querySelector(`[data-page-num="${pageNum}"]`);
-  if (!pageDiv || !pageTextCache[pageNum]) return;
-  const lq = query.toLowerCase();
-  const { items } = pageTextCache[pageNum];
-  const canvas = pageDiv.querySelector('canvas');
-  const h = canvas ? canvas.height : 0;
-  items.forEach(item => {
-    if (!item.str.toLowerCase().includes(lq)) return;
-    const hl = document.createElement('div');
-    hl.className = 'highlight-overlay';
-    hl.style.left = (item.transform[4] * scale) + 'px';
-    hl.style.top = (h - item.transform[5] * scale - item.height * scale) + 'px';
-    hl.style.width = (item.width * scale) + 'px';
-    hl.style.height = Math.max(item.height * scale, 10) + 'px';
-    pageDiv.appendChild(hl);
-  });
+clearHighlights();
+const wrap = document.getElementById('viewer-wrap');
+const pageDiv = wrap.querySelector(`[data-page-num="${pageNum}"]`);
+if (!pageDiv || !pageTextCache[pageNum]) return;
+const lq = query.toLowerCase();
+const { items } = pageTextCache[pageNum];
+const canvas = pageDiv.querySelector('canvas');
+const h = canvas ? canvas.height : 0;
+items.forEach(item => {
+if (!item.str.toLowerCase().includes(lq)) return;
+const hl = document.createElement('div');
+hl.className = 'highlight-overlay';
+hl.style.left = (item.transform[4] * scale) + 'px';
+hl.style.top = (h - item.transform[5] * scale - item.height * scale) + 'px';
+hl.style.width = (item.width * scale) + 'px';
+hl.style.height = Math.max(item.height * scale, 10) + 'px';
+pageDiv.appendChild(hl);
+});
 }
 function clearHighlights() { document.querySelectorAll('.highlight-overlay').forEach(el => el.remove()); }
 function prevMatch() { if (!searchMatches.length) return; searchMatchIndex = (searchMatchIndex-1+searchMatches.length)%searchMatches.length; jumpToMatch(searchMatches[searchMatchIndex]); }
@@ -674,32 +589,32 @@ function nextMatch() { if (!searchMatches.length) return; searchMatchIndex = (se
 
 // ── KEYBOARD ──
 document.addEventListener('keydown', e => {
-  const active = document.activeElement;
-  if (active === document.getElementById('search-input') || active === document.getElementById('zoom-input') || active === document.getElementById('page-input')) return;
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goNext();
-  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goPrev();
-  if (e.key === 'Escape') closeSearch();
-  if (e.key === 'f') toggleFullscreen();
+const active = document.activeElement;
+if (active === document.getElementById('search-input') || active === document.getElementById('zoom-input') || active === document.getElementById('page-input')) return;
+if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goNext();
+if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goPrev();
+if (e.key === 'Escape') closeSearch();
+if (e.key === 'f') toggleFullscreen();
 });
 
 // ── LOGOUT ──
 async function logout() {
-  localStorage.removeItem('vaultdocs_session');
-  try {
-    const sb = window.supabase.createClient(
-      'https://djbiatgxjmvwfcimofjt.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqYmlhdGd4am12d2ZjaW1vZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NjU1MjcsImV4cCI6MjA5MDI0MTUyN30.m_gBey_jA13hVdjttSKtFMcrQO-dGokq1Fpu2XriLp0'
-    );
-    await sb.auth.signOut();
-  } catch(e) {}
-  window.location.href = 'index.html';
+localStorage.removeItem('vaultdocs_session');
+try {
+const sb = window.supabase.createClient(
+'https://djbiatgxjmvwfcimofjt.supabase.co',
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqYmlhdGd4am12d2ZjaW1vZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NjU1MjcsImV4cCI6MjA5MDI0MTUyN30.m_gBey_jA13hVdjttSKtFMcrQO-dGokq1Fpu2XriLp0'
+);
+await sb.auth.signOut();
+} catch(e) {}
+window.location.href = 'index.html';
 }
 
 // ── AUTH ──
 if (!localStorage.getItem('vaultdocs_session')) {
-  window.location.href = 'index.html';
+window.location.href = 'index.html';
 } else {
-  loadPDF();
+loadPDF();
 }
 </script>
 </body>
