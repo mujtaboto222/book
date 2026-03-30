@@ -12,6 +12,7 @@
   --cyan: #00c2e0; --white: #f5f7ff;
   --muted: #8a9bc4; --border: rgba(0,194,224,0.2);
   --green: #00e0a0; --red: #ff6b6b; --gold: #e8c97a;
+  --orange: #ff9f43;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--navy); color: var(--white); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
@@ -30,11 +31,11 @@ header {
 .brand { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--cyan); letter-spacing: 0.12em; text-transform: uppercase; }
 .logout { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 0.78rem; padding: 0.4rem 1rem; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
 .logout:hover { border-color: var(--cyan); color: var(--cyan); }
-
-main { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+main { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
 h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.3rem; }
 .subtitle { font-size: 0.82rem; color: var(--muted); margin-bottom: 2rem; }
 
+/* ── STATS ── */
 .stats { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
 .stat-card {
   flex: 1; min-width: 120px;
@@ -46,7 +47,9 @@ h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.3rem; }
 .stat-card.pending .num { color: var(--gold); }
 .stat-card.approved .num { color: var(--green); }
 .stat-card.total .num { color: var(--cyan); }
+.stat-card.suspicious .num { color: var(--red); }
 
+/* ── SECTION TITLES ── */
 .section-title {
   font-family: 'Space Mono', monospace; font-size: 0.68rem;
   color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase;
@@ -54,15 +57,18 @@ h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.3rem; }
 }
 .badge { background: var(--gold); color: var(--navy); font-size: 0.65rem; font-weight: 700; padding: 0.1rem 0.5rem; border-radius: 100px; }
 .badge.green { background: var(--green); }
+.badge.red { background: var(--red); }
 
+/* ── USER CARDS ── */
 .user-list { display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 2.5rem; }
 .user-card {
-  display: flex; align-items: center; gap: 1rem;
   background: rgba(26,37,80,0.6); border: 1px solid var(--border);
   border-radius: 10px; padding: 1rem 1.2rem;
   transition: border-color 0.2s;
 }
 .user-card:hover { border-color: rgba(0,194,224,0.4); }
+.user-card.flagged { border-color: rgba(255,107,107,0.5); background: rgba(255,107,107,0.05); }
+.user-card-top { display: flex; align-items: center; gap: 1rem; }
 .avatar {
   width: 36px; height: 36px; border-radius: 50%;
   background: var(--navy-mid); border: 1px solid var(--border);
@@ -87,19 +93,84 @@ h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.3rem; }
   padding: 0.4rem 1rem; border-radius: 5px; cursor: pointer; transition: all 0.2s;
 }
 .btn-revoke:hover { background: rgba(255,107,107,0.18); }
-.status-dot {
-  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-}
+.status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .dot-pending { background: var(--gold); box-shadow: 0 0 6px rgba(232,201,122,0.5); }
 .dot-approved { background: var(--green); box-shadow: 0 0 6px rgba(0,224,160,0.5); }
+
+/* ── SESSION / IP INFO ── */
+.session-info {
+  margin-top: 0.7rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(10,14,35,0.5);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 0.72rem;
+  display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem;
+  align-items: flex-start;
+}
+.session-info .si-label { color: var(--muted); font-family: 'Space Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.session-info .si-value { color: var(--white); }
+.flag-tag {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  background: rgba(255,107,107,0.15); border: 1px solid rgba(255,107,107,0.35);
+  color: var(--red); font-size: 0.65rem; font-weight: 700;
+  padding: 0.15rem 0.5rem; border-radius: 100px; letter-spacing: 0.04em;
+}
+.flag-tag.orange {
+  background: rgba(255,159,67,0.15); border-color: rgba(255,159,67,0.35); color: var(--orange);
+}
+.ip-chip {
+  display: inline-block;
+  background: rgba(0,194,224,0.08); border: 1px solid var(--border);
+  color: var(--cyan); font-family: 'Space Mono', monospace;
+  font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 4px; margin: 1px;
+}
+.active-dot {
+  display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 5px rgba(0,224,160,0.7);
+  margin-right: 4px; flex-shrink: 0;
+}
+.session-row { display: flex; flex-direction: column; gap: 0.15rem; }
+
+/* ── ALERT BANNER ── */
+.alert-banner {
+  display: flex; align-items: center; gap: 0.8rem;
+  background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3);
+  border-radius: 10px; padding: 0.9rem 1.2rem; margin-bottom: 1.5rem;
+  font-size: 0.82rem;
+}
+.alert-banner .alert-icon { font-size: 1.2rem; flex-shrink: 0; }
+.alert-banner strong { color: var(--red); }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.tab-btn {
+  background: rgba(26,37,80,0.6); border: 1px solid var(--border);
+  color: var(--muted); font-size: 0.75rem; font-weight: 600;
+  padding: 0.45rem 1rem; border-radius: 7px; cursor: pointer; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.tab-btn.active { border-color: var(--cyan); color: var(--cyan); background: rgba(0,194,224,0.1); }
+.tab-btn:hover:not(.active) { border-color: rgba(0,194,224,0.3); color: var(--white); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── REFRESH BTN ── */
+.refresh-row { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; }
+.btn-refresh {
+  background: rgba(0,194,224,0.08); border: 1px solid var(--border);
+  color: var(--cyan); font-size: 0.75rem; padding: 0.35rem 0.9rem;
+  border-radius: 5px; cursor: pointer; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-refresh:hover { background: rgba(0,194,224,0.15); }
+.last-refresh { font-size: 0.7rem; color: var(--muted); }
 
 .empty { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.85rem; }
 #loading-msg { text-align: center; padding: 3rem; color: var(--muted); }
 
-/* Login gate */
-#admin-login {
-  min-height: 100vh; display: flex; align-items: center; justify-content: center;
-}
+/* ── LOGIN ── */
+#admin-login { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
 .login-card {
   background: rgba(26,37,80,0.7); backdrop-filter: blur(20px);
   border: 1px solid var(--border); border-radius: 16px;
@@ -117,16 +188,24 @@ input:focus { border-color: var(--cyan); }
 .btn-login {
   width: 100%; background: var(--cyan); color: var(--navy);
   border: none; border-radius: 7px; padding: 0.8rem;
-  font-size: 0.87rem; font-weight: 700; cursor: pointer;
-  transition: all 0.2s;
+  font-size: 0.87rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
 }
 .btn-login:hover { opacity: 0.9; }
 .err { font-size: 0.78rem; color: var(--red); margin-top: 0.5rem; text-align: center; }
+
+/* ── SQL HINT BOX ── */
+.sql-hint {
+  background: rgba(10,14,35,0.7); border: 1px solid var(--border);
+  border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem;
+  font-size: 0.75rem; color: var(--muted);
+}
+.sql-hint summary { cursor: pointer; color: var(--cyan); font-weight: 600; margin-bottom: 0.3rem; }
+.sql-hint pre { margin-top: 0.7rem; font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--white); white-space: pre-wrap; line-height: 1.6; }
 </style>
 </head>
 <body>
 
-<!-- ADMIN LOGIN GATE -->
+<!-- LOGIN GATE -->
 <div id="admin-login">
   <div class="login-card">
     <h2>🔐 Admin Access</h2>
@@ -137,7 +216,7 @@ input:focus { border-color: var(--cyan); }
   </div>
 </div>
 
-<!-- ADMIN DASHBOARD -->
+<!-- DASHBOARD -->
 <div id="admin-dash" style="display:none">
   <header>
     <span class="brand">⚡ VaultDocs Admin — User Management</span>
@@ -145,25 +224,75 @@ input:focus { border-color: var(--cyan); }
   </header>
   <main>
     <h2>User Access Control</h2>
-    <p class="subtitle">Approve or revoke access to F(Orth) Part B Easy Study Notes</p>
+    <p class="subtitle">Approve or revoke access · Monitor concurrent sessions &amp; IP anomalies</p>
 
     <div class="stats">
       <div class="stat-card pending"><div class="num" id="count-pending">—</div><div class="lbl">Pending</div></div>
       <div class="stat-card approved"><div class="num" id="count-approved">—</div><div class="lbl">Approved</div></div>
       <div class="stat-card total"><div class="num" id="count-total">—</div><div class="lbl">Total</div></div>
+      <div class="stat-card suspicious"><div class="num" id="count-suspicious">—</div><div class="lbl">⚠ Flagged</div></div>
     </div>
 
-    <div id="loading-msg">Loading users…</div>
+    <div id="alert-area"></div>
 
-    <div id="pending-section" style="display:none">
-      <div class="section-title">Pending Approval <span class="badge" id="pending-badge">0</span></div>
-      <div class="user-list" id="pending-list"></div>
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('users')">👥 Users</button>
+      <button class="tab-btn" onclick="switchTab('sessions')">🔍 Session Monitor</button>
     </div>
 
-    <div id="approved-section" style="display:none">
-      <div class="section-title">Approved Users <span class="badge green" id="approved-badge">0</span></div>
-      <div class="user-list" id="approved-list"></div>
+    <div id="loading-msg">Loading…</div>
+
+    <!-- TAB: USERS -->
+    <div class="tab-panel active" id="tab-users">
+      <div id="pending-section" style="display:none">
+        <div class="section-title">Pending Approval <span class="badge" id="pending-badge">0</span></div>
+        <div class="user-list" id="pending-list"></div>
+      </div>
+      <div id="approved-section" style="display:none">
+        <div class="section-title">Approved Users <span class="badge green" id="approved-badge">0</span></div>
+        <div class="user-list" id="approved-list"></div>
+      </div>
     </div>
+
+    <!-- TAB: SESSION MONITOR -->
+    <div class="tab-panel" id="tab-sessions">
+
+      <details class="sql-hint">
+        <summary>⚙ Required Supabase setup (click to expand)</summary>
+        <pre>-- Run this once in your Supabase SQL editor:
+
+CREATE TABLE IF NOT EXISTS public.sessions (
+  id           uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id      uuid NOT NULL,
+  email        text,
+  session_key  text NOT NULL,
+  ip           text,
+  last_seen    timestamptz DEFAULT now(),
+  UNIQUE(user_id, session_key)
+);
+
+ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
+
+-- Allow logged-in users to upsert their own session
+CREATE POLICY "Users manage own sessions" ON public.sessions
+  FOR ALL USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Allow admins to read all sessions (handled via service key or anon read)
+-- For simplicity, grant anon select (admin page already requires admin login):
+CREATE POLICY "Admin read all" ON public.sessions
+  FOR SELECT USING (true);</pre>
+      </details>
+
+      <div class="refresh-row">
+        <button class="btn-refresh" onclick="loadSessions()">↻ Refresh</button>
+        <span class="last-refresh" id="last-refresh-time"></span>
+      </div>
+
+      <div id="session-list"></div>
+    </div>
+
   </main>
 </div>
 
@@ -171,19 +300,30 @@ input:focus { border-color: var(--cyan); }
 const SUPABASE_URL = 'https://djbiatgxjmvwfcimofjt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqYmlhdGd4am12d2ZjaW1vZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NjU1MjcsImV4cCI6MjA5MDI0MTUyN30.m_gBey_jA13hVdjttSKtFMcrQO-dGokq1Fpu2XriLp0';
 let supabase;
+let adminSession = null;
+let allUsers = [];
+let sessionData = [];
+
 window.addEventListener('load', () => {
   supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 });
 
-let adminSession = null;
+// ── TABS ──
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['users','sessions'][i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'sessions') loadSessions();
+}
 
+// ── LOGIN ──
 async function adminLogin() {
   const email = document.getElementById('adm-email').value.trim();
-  const pass = document.getElementById('adm-pass').value;
+  const pass  = document.getElementById('adm-pass').value;
   const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
   if (error) { document.getElementById('adm-err').textContent = error.message; return; }
-  
-  // Check if this user is marked as admin in profiles
   const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', data.user.id).single();
   if (!profile?.is_admin) {
     await supabase.auth.signOut();
@@ -201,48 +341,56 @@ async function adminLogout() {
   window.location.reload();
 }
 
+// ── LOAD USERS ──
 async function loadUsers() {
   document.getElementById('loading-msg').style.display = 'block';
   const { data: users, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
   document.getElementById('loading-msg').style.display = 'none';
   if (error || !users) return;
+  allUsers = users;
 
-  const pending = users.filter(u => !u.approved);
+  const pending  = users.filter(u => !u.approved);
   const approved = users.filter(u => u.approved);
 
-  document.getElementById('count-pending').textContent = pending.length;
+  document.getElementById('count-pending').textContent  = pending.length;
   document.getElementById('count-approved').textContent = approved.length;
-  document.getElementById('count-total').textContent = users.length;
-  document.getElementById('pending-badge').textContent = pending.length;
+  document.getElementById('count-total').textContent    = users.length;
+
+  document.getElementById('pending-badge').textContent  = pending.length;
   document.getElementById('approved-badge').textContent = approved.length;
 
-  renderList('pending-list', pending, false);
-  renderList('approved-list', approved, true);
+  renderUserList('pending-list',  pending,  false);
+  renderUserList('approved-list', approved, true);
 
-  document.getElementById('pending-section').style.display = pending.length ? 'block' : 'none';
+  document.getElementById('pending-section').style.display  = pending.length  ? 'block' : 'none';
   document.getElementById('approved-section').style.display = approved.length ? 'block' : 'none';
 
   if (!pending.length && !approved.length) {
-    document.getElementById('loading-msg').textContent = 'No users yet.';
+    document.getElementById('loading-msg').textContent  = 'No users yet.';
     document.getElementById('loading-msg').style.display = 'block';
   }
+
+  // Also refresh session flags if sessions already loaded
+  if (sessionData.length) renderSessionMonitor(sessionData);
 }
 
-function renderList(containerId, users, isApproved) {
+function renderUserList(containerId, users, isApproved) {
   const container = document.getElementById(containerId);
   if (!users.length) { container.innerHTML = '<div class="empty">None</div>'; return; }
   container.innerHTML = users.map(u => `
     <div class="user-card">
-      <div class="status-dot ${isApproved ? 'dot-approved' : 'dot-pending'}"></div>
-      <div class="avatar">${(u.full_name || u.email || '?')[0]}</div>
-      <div class="user-info">
-        <div class="user-name">${u.full_name || '(No name)'}</div>
-        <div class="user-email">${u.email || ''}</div>
-        <div class="user-date">Joined: ${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</div>
-      </div>
-      <div class="user-actions">
-        ${!isApproved ? `<button class="btn-approve" onclick="approveUser('${u.id}')">✓ Approve</button>` : ''}
-        ${isApproved ? `<button class="btn-revoke" onclick="revokeUser('${u.id}')">✕ Revoke</button>` : ''}
+      <div class="user-card-top">
+        <div class="status-dot ${isApproved ? 'dot-approved' : 'dot-pending'}"></div>
+        <div class="avatar">${(u.full_name || u.email || '?')[0]}</div>
+        <div class="user-info">
+          <div class="user-name">${u.full_name || '(No name)'}</div>
+          <div class="user-email">${u.email || ''}</div>
+          <div class="user-date">Joined: ${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</div>
+        </div>
+        <div class="user-actions">
+          ${!isApproved ? `<button class="btn-approve" onclick="approveUser('${u.id}')">✓ Approve</button>` : ''}
+          ${isApproved  ? `<button class="btn-revoke"  onclick="revokeUser('${u.id}')">✕ Revoke</button>`  : ''}
+        </div>
       </div>
     </div>
   `).join('');
@@ -257,6 +405,135 @@ async function revokeUser(id) {
   await supabase.from('profiles').update({ approved: false }).eq('id', id);
   loadUsers();
 }
+
+// ── SESSION MONITOR ──
+// Active = last heartbeat within 2 minutes
+const ACTIVE_WINDOW_MS = 2 * 60 * 1000;
+
+async function loadSessions() {
+  document.getElementById('session-list').innerHTML = '<div class="empty">Loading sessions…</div>';
+  const cutoff = new Date(Date.now() - ACTIVE_WINDOW_MS).toISOString();
+
+  const { data, error } = await supabase
+    .from('sessions')
+    .select('*')
+    .gte('last_seen', cutoff)
+    .order('last_seen', { ascending: false });
+
+  document.getElementById('last-refresh-time').textContent =
+    'Last refreshed: ' + new Date().toLocaleTimeString();
+
+  if (error) {
+    document.getElementById('session-list').innerHTML =
+      `<div class="empty" style="color:var(--red)">Error loading sessions: ${error.message}<br><br>Make sure you've created the <code>sessions</code> table (see setup above).</div>`;
+    return;
+  }
+
+  sessionData = data || [];
+  renderSessionMonitor(sessionData);
+}
+
+function renderSessionMonitor(rows) {
+  const container = document.getElementById('session-list');
+
+  // Group by user_id
+  const byUser = {};
+  rows.forEach(r => {
+    if (!byUser[r.user_id]) byUser[r.user_id] = { email: r.email, sessions: [] };
+    byUser[r.user_id].sessions.push(r);
+  });
+
+  // Find flagged users
+  const flagged = Object.entries(byUser).filter(([uid, u]) => {
+    const uniqueIPs = [...new Set(u.sessions.map(s => s.ip).filter(Boolean))];
+    return u.sessions.length > 1 || uniqueIPs.length > 1;
+  });
+
+  document.getElementById('count-suspicious').textContent = flagged.length;
+
+  // Alert banner
+  const alertArea = document.getElementById('alert-area');
+  if (flagged.length > 0) {
+    alertArea.innerHTML = `
+      <div class="alert-banner">
+        <span class="alert-icon">🚨</span>
+        <div><strong>${flagged.length} account${flagged.length > 1 ? 's' : ''} flagged</strong> for suspicious activity —
+        multiple active sessions or different IP addresses detected in the last 2 minutes.</div>
+      </div>`;
+  } else {
+    alertArea.innerHTML = '';
+  }
+
+  if (!Object.keys(byUser).length) {
+    container.innerHTML = '<div class="empty">No active sessions in the last 2 minutes.<br>Make sure the viewer is writing heartbeats to the <code>sessions</code> table.</div>';
+    return;
+  }
+
+  container.innerHTML = Object.entries(byUser).map(([uid, u]) => {
+    const sessions   = u.sessions;
+    const uniqueIPs  = [...new Set(sessions.map(s => s.ip).filter(Boolean))];
+    const multiSession = sessions.length > 1;
+    const multiIP      = uniqueIPs.length > 1;
+    const isFlagged    = multiSession || multiIP;
+
+    // Look up name from allUsers
+    const profile = allUsers.find(p => p.id === uid);
+    const name    = profile?.full_name || u.email || uid;
+    const initials = (name[0] || '?').toUpperCase();
+
+    const flags = [
+      multiSession ? `<span class="flag-tag">⚡ ${sessions.length} concurrent sessions</span>` : '',
+      multiIP      ? `<span class="flag-tag orange">🌐 ${uniqueIPs.length} different IPs</span>` : '',
+    ].filter(Boolean).join(' ');
+
+    const ipChips = uniqueIPs.map(ip => `<span class="ip-chip">${ip}</span>`).join('');
+
+    const sessionRows = sessions.map(s => {
+      const ago = Math.round((Date.now() - new Date(s.last_seen)) / 1000);
+      const agoStr = ago < 60 ? `${ago}s ago` : `${Math.round(ago/60)}m ago`;
+      return `<div style="display:flex;align-items:center;gap:6px;font-size:0.68rem;color:var(--muted);margin-top:3px;">
+        <span class="active-dot"></span>
+        <span style="font-family:'Space Mono',monospace;color:var(--white)">${s.ip || 'unknown IP'}</span>
+        <span>·</span>
+        <span>session <code style="color:var(--cyan)">${s.session_key.slice(0,8)}…</code></span>
+        <span>·</span>
+        <span>${agoStr}</span>
+      </div>`;
+    }).join('');
+
+    return `
+      <div class="user-card ${isFlagged ? 'flagged' : ''}">
+        <div class="user-card-top">
+          <div class="avatar">${initials}</div>
+          <div class="user-info">
+            <div class="user-name">${name} ${isFlagged ? flags : '<span style="font-size:0.65rem;color:var(--green);font-weight:600;">✓ Normal</span>'}</div>
+            <div class="user-email">${u.email || ''}</div>
+          </div>
+        </div>
+        <div class="session-info">
+          <div class="session-row">
+            <span class="si-label">Active Sessions</span>
+            <span class="si-value">${sessions.length}</span>
+          </div>
+          <div class="session-row">
+            <span class="si-label">IP Addresses</span>
+            <span class="si-value">${ipChips || '—'}</span>
+          </div>
+          <div style="width:100%">
+            <div class="si-label" style="margin-bottom:4px;">Live Sessions</div>
+            ${sessionRows}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// Auto-refresh sessions every 30s when on that tab
+setInterval(() => {
+  if (document.getElementById('tab-sessions').classList.contains('active')) {
+    loadSessions();
+  }
+}, 30000);
 </script>
 </body>
 </html>

@@ -413,6 +413,45 @@ let userEmail = '';
 const scroll = document.getElementById('viewer-scroll');
 const wrap = document.getElementById('viewer-wrap');
 
+// ── SESSION HEARTBEAT ──
+// Writes a heartbeat every 30s so the admin can detect concurrent sessions
+// or multiple IP addresses on the same account.
+const SESSION_KEY = 'vd_sk_' + Math.random().toString(36).slice(2);
+let _hbSb = null, _hbUserId = null;
+
+async function initHeartbeat() {
+  try {
+    _hbSb = window.supabase.createClient(
+      'https://djbiatgxjmvwfcimofjt.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqYmlhdGd4am12d2ZjaW1vZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NjU1MjcsImV4cCI6MjA5MDI0MTUyN30.m_gBey_jA13hVdjttSKtFMcrQO-dGokq1Fpu2XriLp0'
+    );
+    const { data: { session } } = await _hbSb.auth.getSession();
+    if (!session?.user) return;
+    _hbUserId = session.user.id;
+    userEmail = session.user.email || '';
+    await sendHeartbeat();
+    setInterval(sendHeartbeat, 30000);
+    window.addEventListener('beforeunload', removeHeartbeat);
+  } catch(e) {}
+}
+
+async function sendHeartbeat() {
+  if (!_hbSb || !_hbUserId) return;
+  try {
+    let ip = '';
+    try { const r = await fetch('https://api.ipify.org?format=json'); ip = (await r.json()).ip || ''; } catch(e) {}
+    await _hbSb.from('sessions').upsert({
+      user_id: _hbUserId, email: userEmail,
+      session_key: SESSION_KEY, ip, last_seen: new Date().toISOString()
+    }, { onConflict: 'user_id,session_key' });
+  } catch(e) {}
+}
+
+async function removeHeartbeat() {
+  if (!_hbSb || !_hbUserId) return;
+  try { await _hbSb.from('sessions').delete().eq('user_id', _hbUserId).eq('session_key', SESSION_KEY); } catch(e) {}
+}
+
 // ── PINCH-TO-ZOOM ──
 // We transform only #viewer-wrap (which lives inside #viewer-scroll, not a fixed element).
 // The bottom bar is fixed to <body>, so it is completely unaffected by any transform on #viewer-wrap.
@@ -526,15 +565,8 @@ scroll.addEventListener('pointercancel', () => {
 // ── LOAD PDF ──
 async function loadPDF() {
   try {
-    // Get user email from Supabase session
-    try {
-      const sb = window.supabase.createClient(
-        'https://djbiatgxjmvwfcimofjt.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqYmlhdGd4am12d2ZjaW1vZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NjU1MjcsImV4cCI6MjA5MDI0MTUyN30.m_gBey_jA13hVdjttSKtFMcrQO-dGokq1Fpu2XriLp0'
-      );
-      const { data: { session } } = await sb.auth.getSession();
-      if (session && session.user) userEmail = session.user.email || '';
-    } catch(e) {}
+    // Init heartbeat (also sets userEmail and userId)
+    await initHeartbeat();
 
     document.querySelector('.load-text').textContent = 'Fetching…';
     const response = await fetch('book.pdf');
